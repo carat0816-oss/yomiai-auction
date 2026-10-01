@@ -72,7 +72,7 @@ def _color(names):
     return alt.Scale(domain=list(names), range=[COLORS.get(n, "#4a3aa7") for n in names])
 
 
-def show_lab(games: list[dict], adopt):
+def show_lab(games: list[dict], registry: dict):
     page_header("MODEL LAB", "モデル工房",
                 "集まった対戦データで予測モデルを作って比べる場所です。良いモデルができたら、対戦AIに採用できます。")
     step(1, "データを選ぶ")
@@ -196,15 +196,29 @@ def show_lab(games: list[dict], adopt):
 
     if task == "opp":
         _example(df, model, cfg, pick)
-        step(5, "このモデルを対戦AIに採用する")
-        if dummy:
-            st.caption("ダミーデータで作ったモデルは採用できません（人間の読みに使うため）。「みんなのデータ」で学習してください。")
-        else:
-            cur = adopt.get("opp")
-            st.caption(f"いまの採用：{cur['name']}（特徴量 {len(cur['features'])} 個）" if cur else "いまの採用：既定（LightGBM・既定の特徴量）")
-            if st.button(f"「{pick}」と選んだ特徴量を採用する", key="adopt"):
-                adopt["opp"] = {"name": pick, "features": list(cfg["features"])}
-                st.success("採用しました。次の対戦から、AIの読みにこのモデルを使います（同じサーバーで遊ぶ全員）。")
+        step(5, "この設定で、対戦AIの新しい版を作る")
+        active = next((v for v in registry["versions"] if v["slug"] == registry.get("active")), None)
+        if active and "読みの的中率" in active.get("metrics", {}):
+            mine = res["table"].loc[pick, "的中率（1位）"] if pick in res["table"].index else None
+            st.caption(f"現役の {active['name']} の読みの的中率は {active['metrics']['読みの的中率']:.1%}"
+                       + (f"、いまの「{pick}」は {mine:.1%}（{'ダミー' if dummy else 'みんなの'}データでの値）" if mine else "")
+                       + "。上回っていれば、新しい版にする価値があります。")
+        st.markdown("対戦AIは、管理者が手元で作った**決まった版**を使います（公開アプリが勝手に学習し直すことはありません）。"
+                    "この設定で版を作るには、手元のフォルダで次を実行して、できたファイルを push します。")
+        name = "Yomi " + _next_version(registry)
+        st.code(f'.venv\\Scripts\\python train_model.py --name "{name}" --model {pick} '
+                f'--features {",".join(cfg["features"])} --notes "ここに変えた点を書く"', language="bash")
+        st.caption("ハイパーパラメータは既定の値で学習します。データはその時点のスプレッドシートの全対戦を使います。")
+
+
+def _next_version(registry: dict) -> str:
+    """次の版の番号の案（いちばん新しい版の小数点以下を1つ上げる）。"""
+    import re
+    for v in registry["versions"]:
+        m = re.search(r"(\d+)\.(\d+)", v["name"])
+        if m:
+            return f"{m.group(1)}.{int(m.group(2)) + 1}"
+    return "1.0"
 
 
 @st.cache_data(show_spinner="重要度を計算しています…")

@@ -1,0 +1,39 @@
+{
+  "active": "yomi-1.0",
+  "versions": [
+    {
+      "slug": "yomi-1.0",
+      "created_at": "2026-10-01 19:43",
+      "name": "Yomi 1.0",
+      "notes": "最初の版。人間の対戦がまだ少ないので、相手の読みはルール（得点に見合った順位の札を出す）。勝率メーターはボット同士の対戦1500試合で学習。",
+      "opp": "ルール（ベースライン）",
+      "win": "LightGBM（ボット対戦で学習）",
+      "model": "ルール",
+      "features": [
+        "card_rank",
+        "rank_gap",
+        "abs_rank_gap",
+        "card",
+        "is_max",
+        "is_min",
+        "sure_win",
+        "can_tie",
+        "prize",
+        "prize_share",
+        "round_no",
+        "score_diff",
+        "my_need",
+        "opp_need",
+        "max_gap",
+        "last_result",
+        "aggr_mean"
+      ],
+      "n_games": 1,
+      "n_moves": 10,
+      "data_source": "スプレッドシート",
+      "metrics": {
+        "ボット相手の勝率": 0.675
+      }
+    }
+  ]
+}

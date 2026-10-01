@@ -33,7 +33,8 @@ def _start():
     ss.rng = random.Random()
     ss.state = new_game(ss.rng)
     ss.rec = {"prizes": ss.state["prizes"], "rounds": [], "ai_level": ss.get("ai_level") or "ふつう",
-              "profile": {k: ss.get(f"profile_{k}") for k in PROFILE}}
+              "profile": {k: ss.get(f"profile_{k}") for k in PROFILE},
+              "version": ss.get("ai_version")}   # 試合の途中で版が変わらないよう、始めた時点の版を覚える
     ss.pending = None
     ss.last = None
     ss.pop("consent", None)
@@ -60,17 +61,42 @@ def _play(card: int, think_ms=None):
     ss.pending = None
 
 
-def _intro():
+def _intro(registry: dict):
     page_header("YOMIAI AUCTION", "読み合いオークション",
                 "1〜10の手札で、得点カードを取り合う心理戦。AIはみんなの対戦データから、あなたが出しそうな札を予測してきます。")
     rules_card()
+    versions = registry["versions"]
     with st.container(border=True):
         st.markdown("**プレイ前のしつもん**　<small>任意。予測モデルの材料になります</small>", unsafe_allow_html=True)
         cols = st.columns(len(PROFILE))
         for col, (k, (label, choices)) in zip(cols, PROFILE.items()):
             col.selectbox(label, choices, index=len(choices) - 1, key=f"profile_{k}")
-        st.segmented_control("AIの強さ", list(LEVELS), default="ふつう", key="ai_level")
+        c1, c2 = st.columns(2)
+        c1.segmented_control("AIの強さ", list(LEVELS), default="ふつう", key="ai_level")
+        if versions:
+            names = {v["slug"]: v["name"] + ("（現役）" if v["slug"] == registry.get("active") else "") for v in versions}
+            slugs = list(names)
+            if st.session_state.get("ai_version") not in slugs:
+                st.session_state.ai_version = registry.get("active") or slugs[0]
+            c2.selectbox("対戦するAIの版", slugs, format_func=names.get, key="ai_version")
     st.button("対戦スタート →", type="primary", width="stretch", on_click=_start)
+    if versions:
+        with st.expander("AIの版（リリースノート）"):
+            release_notes(registry)
+
+
+def release_notes(registry: dict):
+    """版ごとの公開日・学習データ・成績・メモ。"""
+    for v in registry["versions"]:
+        m = v.get("metrics", {})
+        tag = "　`現役`" if v["slug"] == registry.get("active") else ""
+        st.markdown(f"**{v['name']}**{tag}　<small>{v['created_at']}</small>", unsafe_allow_html=True)
+        facts = [f"{v['n_games']} 試合・{v['n_moves']} 手で学習", f"読み：{v['model']}"]
+        if "読みの的中率" in m:
+            facts.append(f"読みの的中率 {m['読みの的中率']:.0%}（ルールなら {m['ルールの的中率']:.0%}）")
+        if "ボット相手の勝率" in m:
+            facts.append(f"ボット相手の勝率 {m['ボット相手の勝率']:.0%}")
+        st.caption(" ／ ".join(facts) + (f"\n\n{v['notes']}" if v.get("notes") else ""))
 
 
 @st.cache_resource
@@ -133,11 +159,11 @@ def _ensure_pending():
 
 def _playing(brain):
     ss = st.session_state
-    ss.rec.setdefault("ai_model", brain.opp_name)
+    ss.rec.setdefault("ai_model", brain.version)
     _ensure_pending()
     _board(brain)
     c1, c2 = st.columns([3, 1])
-    c1.caption(f"AIの強さ：{ss.rec['ai_level']} ／ 相手の読み：{brain.opp_name}")
+    c1.caption(f"AI：{brain.version}（強さ {ss.rec['ai_level']}）／ 相手の読み：{brain.opp_name}")
     if c2.button("対戦をやめる", width="stretch"):
         for k in ("state", "rec", "pending", "last", "game_id"):
             ss.pop(k, None)
@@ -221,13 +247,16 @@ def _result(brain, store, load_shared):
         st.rerun()
 
 
-def show_play(brain, store, load_shared):
+def show_play(get_brain, registry: dict, store, load_shared):
     ss = st.session_state
+    if "state" in ss:
+        brain = get_brain(ss.rec.get("version"))       # 試合中は、始めたときの版のまま
+    else:
+        brain = get_brain(ss.get("ai_version") or registry.get("active"))
     ss.brain = brain
     _queued()
     if "state" not in ss:
-        _intro()
-        st.caption(f"いまのAI：相手の読み＝{brain.opp_name} ／ 勝率＝{brain.win_name}")
+        _intro(registry)
     elif not is_over(ss.state):
         _playing(brain)
     else:

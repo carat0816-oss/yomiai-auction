@@ -101,3 +101,25 @@ back = assemble([dict(zip(GAME_COLS, grow))], [dict(zip(ROUND_COLS, r)) for r in
 assert len(back) == 1 and back[0]["prizes"] == g["prizes"] and len(back[0]["rounds"]) == 10
 assert assemble([dict(zip(GAME_COLS, grow))], [dict(zip(ROUND_COLS, r)) for r in rrows[:5]]) == []
 print("PASS: 保存形式（検査・行への変換・読み戻し・欠けた試合の除外）")
+
+# --- AIの版（一時フォルダに保存して読み戻す。本物の models/ は触らない） ---
+import tempfile  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+import registry  # noqa: E402
+
+tmp = Path(tempfile.mkdtemp())
+registry.MODELS_DIR, registry.REGISTRY = tmp, tmp / "registry.json"
+assert registry.load_registry() == {"active": None, "versions": []}
+assert registry.slugify("Yomi 1.1") == "yomi-1.1"
+registry.save_version(trained, {"name": "Yomi 1.0", "n_games": 1, "n_moves": 10, "metrics": {}})
+registry.save_version(Brain(), {"name": "Yomi 1.1", "n_games": 2, "n_moves": 20, "metrics": {}}, activate=False)
+reg = registry.load_registry()
+assert reg["active"] == "yomi-1.0" and [v["name"] for v in reg["versions"]] == ["Yomi 1.1", "Yomi 1.0"]
+loaded = registry.load_brain("yomi-1.0")
+assert loaded.version == "Yomi 1.0" and loaded.opp_model is not None
+s9 = new_game(random.Random(3))
+assert loaded.read(s9, 0) == trained.read(s9, 0)          # 保存前と同じ予測をする
+registry.save_version(Brain(), {"name": "Yomi 1.0", "n_games": 3, "n_moves": 30, "metrics": {}})   # 同じ名前は置きかえ
+assert len(registry.load_registry()["versions"]) == 2
+print("PASS: AIの版（保存・一覧・現役・読み戻し・置きかえ）")

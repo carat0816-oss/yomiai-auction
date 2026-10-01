@@ -1,6 +1,9 @@
 streamlit>=1.51,<2
 pandas>=2.2,<4
-scikit-learn>=1.7
-lightgbm>=4.5
+# 学習済みモデル（models/*.joblib）を手元とクラウドで同じように読めるよう、版を固定する
+scikit-learn==1.9.1
+lightgbm==4.7.0
+numpy==2.5.3
+joblib==1.6.0
 gspread>=6.2,<7
 google-auth>=2.30,<3

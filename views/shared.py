@@ -168,6 +168,11 @@ def show_shared(games: list[dict], store):
                 + base.mark_line(strokeWidth=2, color=AI).encode(y="直近10試合の平均:Q"),
                 width="stretch")
             st.caption("灰色の点＝1試合ごとの的中率、線＝直近10試合の平均。当てずっぽうなら約29%です。")
+            st.markdown("#### AIの版ごとの成績")
+            ver = g.assign(人間の勝ち=g["my_score"] > g["ai_score"]).groupby("ai_model").agg(
+                試合=("game_id", "size"), 人間の勝率=("人間の勝ち", "mean"), 読みの的中率=("read_top1", "mean"))
+            st.dataframe(ver.style.format({"人間の勝率": "{:.0%}", "読みの的中率": "{:.0%}"}), width="stretch")
+            st.caption("同じ人が何度も遊ぶと上手くなるので、後の版ほど人間が強い相手と戦っている点に注意してください。")
             st.markdown("#### 読まれにくい人ランキング")
             st.dataframe(g.groupby("player")["read_top1"].agg(["mean", "size"]).rename(
                 columns={"mean": "AIの的中率", "size": "試合"}).sort_values("AIの的中率").round(3), width="stretch")

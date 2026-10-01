@@ -87,6 +87,7 @@ class Brain:
         self.opp_name, self.win_name = opp_name, win_name
         self.opp_features, self.win_features = list(opp_features), list(win_features)
         self.n_human = n_human
+        self.version = "ルールのみ"   # 版の名前（registry.save_version で付く）
 
     def read(self, state: dict, opp: int, think_ms: list | None = None, profile: dict | None = None) -> dict:
         """相手（opp）が次に出す札の確率 {札: 確率}。"""
@@ -140,7 +141,8 @@ class Brain:
 
 
 def train_brain(human_games: list[dict], seed: int = 0, opp_name: str = "LightGBM",
-                opp_features: list[str] | None = None, bootstrap_games: int = 1500) -> Brain:
+                opp_features: list[str] | None = None, bootstrap_games: int = 1500,
+                opp_params: dict | None = None) -> Brain:
     """人間の対戦記録（＋ボットの自己対戦）から AI の頭脳を作る。"""
     rng = random.Random(seed)
     # 勝率モデル：ボット同士の対戦で下地を作り、人間の対戦も足す
@@ -153,7 +155,7 @@ def train_brain(human_games: list[dict], seed: int = 0, opp_name: str = "LightGB
         return Brain(win_model=win_model, win_name="LightGBM（ボット対戦で学習）", n_human=n_human)
     feats = list(opp_features or OPP_DEFAULT)
     odf = opp_dataset(human_games)
-    opp_model = make_model(opp_name, feats).fit(odf[feats], odf["chosen"])
+    opp_model = make_model(opp_name, feats, opp_params).fit(odf[feats], odf["chosen"])
     return Brain(opp_model=opp_model, win_model=win_model, opp_name=f"{opp_name}（人間 {n_human} 手で学習）",
                  win_name="LightGBM（ボット対戦＋人間の対戦で学習）", opp_features=feats, n_human=n_human)
 
