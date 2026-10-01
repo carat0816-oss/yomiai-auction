@@ -15,7 +15,7 @@
 
 /* ---- ゾーン（上＝AI、下＝あなた）---- */
 .zone{border-radius:16px;padding:10px 12px 12px;box-shadow:inset 0 0 0 2px var(--zc)}
-.ai-zone{--zc:#eb683480;background:linear-gradient(180deg,#eb683418,#eb683406)}
+.ai-zone{--zc:#eb683480;background:linear-gradient(180deg,#eb683418,#eb683406);margin-top:12px}
 .you-zone{--zc:#3987e580;background:linear-gradient(0deg,#3987e518,#3987e506)}
 .zone-head{display:flex;justify-content:space-between;align-items:center;gap:6px 10px;margin-bottom:8px;flex-wrap:wrap}
 .zone-name{font-size:15px;font-weight:800;letter-spacing:.03em}
@@ -26,7 +26,7 @@
 .badge b{font-size:15px;color:#fff;margin-left:3px}
 
 /* ---- スコアボード（真ん中）---- */
-.scoreboard{margin:12px 0 0;padding:12px 12px 10px;border-radius:16px;background:#0b1526b8;box-shadow:inset 0 0 0 1px #ffffff1a}
+.scoreboard{margin:0;padding:12px 12px 10px;border-radius:16px;background:#0b1526b8;box-shadow:inset 0 0 0 1px #ffffff1a}
 
 /* ---- スコア ---- */
 .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}

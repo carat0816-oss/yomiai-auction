@@ -1,14 +1,5 @@
 <div class="table" tabindex="0" aria-label="読み合いオークションの盤面">
-  <!-- 上：AIのエリア（相手の情報は上にまとめる） -->
-  <section class="zone ai-zone">
-    <div class="zone-head">
-      <span class="zone-name ai">🤖 AI の手札 <small>（使った札は公開されている）</small></span>
-      <span class="badges" id="opp-sum"></span>
-    </div>
-    <div class="mini-row" id="opp-hand"></div>
-  </section>
-
-  <!-- 真ん中：スコアボード -->
+  <!-- 一番上：スコアボード（点数・勝ち確定ライン） -->
   <section class="scoreboard">
     <header class="top">
       <div class="plate you"><span class="who">あなた</span><b class="pts" id="pts-you">0</b><span class="unit">点</span></div>
@@ -26,6 +17,15 @@
   <section class="rail">
     <div class="rail-title">得点カード <small>色＝取った人 ／ 白＝まだ出ていない ／ 金＝いまの得点カード</small></div>
     <div class="chips" id="prize-chips"></div>
+  </section>
+
+  <!-- AIのエリア（場の向こう側） -->
+  <section class="zone ai-zone">
+    <div class="zone-head">
+      <span class="zone-name ai">🤖 AI の手札 <small>（使った札は公開されている）</small></span>
+      <span class="badges" id="opp-sum"></span>
+    </div>
+    <div class="mini-row" id="opp-hand"></div>
   </section>
 
   <!-- 場 -->

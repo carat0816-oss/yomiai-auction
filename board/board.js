@@ -109,21 +109,19 @@ export default function (component) {
   }
   function drawHand(locked) {
     const hand = data.hands[0];
-    const n = hand.length, mid = (n - 1) / 2;
-    // 手札が盤面の幅に収まるように、札の幅と重なり具合を決める（扇の傾き分の余白も見込む）
+    const n = hand.length;
+    // 札の大きさは前と同じ決め方。まっすぐ一列に並べ、入りきらないときだけ少し重ねる
     const hw = $('hand');
-    const avail = hw.clientWidth - 28;   // 手札エリアの幅（扇の傾きではみ出す分を引く）
+    const avail = hw.clientWidth - 8;
     const w = Math.max(38, Math.min(66, avail / Math.max(n * 0.8, 1)));
-    const gap = Math.min(4, (avail - w) / Math.max(n - 1, 1) - w);   // 札と札の間（マイナスなら重なる）
+    const gap = Math.min(6, (avail - w) / Math.max(n - 1, 1) - w);   // 札と札の間（マイナスなら重なる）
     hw.classList.toggle('locked', locked);
     hw.style.setProperty('--w', `${w}px`);
     hw.style.setProperty('--overlap', `${Math.round(gap)}px`);
-    hw.style.height = `${Math.round(w * 1.42 + mid * mid + 30)}px`;   // 札の高さ＋扇の下がり＋持ち上げる分
-    hw.innerHTML = hand.map((v, i) => {
-      const d = i - mid;
-      return `<button class="hcard" data-card="${v}" style="--r:${(d * 3.2).toFixed(1)}deg;--y:${(d * d * 1.0).toFixed(1)}px" ` +
-        `aria-label="${v} を出す" ${locked ? 'tabindex="-1"' : ''}><span class="tl">${v}</span><span class="num">${v}</span></button>`;
-    }).join('');
+    hw.style.height = `${Math.round(w * 1.42 + 22)}px`;   // 札の高さ＋選ぶときに持ち上げる分
+    hw.innerHTML = hand.map(v =>
+      `<button class="hcard" data-card="${v}" aria-label="${v} を出す" ${locked ? 'tabindex="-1"' : ''}>` +
+      `<span class="tl">${v}</span><span class="num">${v}</span></button>`).join('');
     const touch = window.matchMedia('(pointer: coarse)').matches;
     $('hand-hint').textContent = data.over ? '' : locked ? '…'
       : touch ? 'タップして出す' : '出す札をクリック（キーボードの 1〜9・0 でもOK）';
