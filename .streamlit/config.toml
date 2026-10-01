@@ -1,0 +1,22 @@
+[theme]
+base = "light"
+primaryColor = "#2a78d6"
+backgroundColor = "#f6f7fa"
+secondaryBackgroundColor = "#eaeef5"
+textColor = "#14213a"
+borderColor = "#d9e0ec"
+baseRadius = "0.7rem"
+buttonRadius = "0.7rem"
+blueColor = "#2a78d6"
+orangeColor = "#eb6834"
+# グラフの既定色（検証済みのパレット。1番目＝人間の青、2番目＝AIのオレンジ）
+chartCategoricalColors = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
+
+[theme.sidebar]
+backgroundColor = "#12213a"
+secondaryBackgroundColor = "#1d3050"
+textColor = "#e8edf6"
+borderColor = "#2b3a55"
+
+[browser]
+gatherUsageStats = false

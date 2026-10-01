@@ -1,0 +1,58 @@
+<div class="table" tabindex="0" aria-label="読み合いオークションの盤面">
+  <header class="top">
+    <div class="plate you"><span class="who">あなた</span><b class="pts" id="pts-you">0</b><span class="unit">点</span></div>
+    <div class="round"><span>ROUND</span><b id="round">1</b><small>/ 10</small></div>
+    <div class="plate ai"><span class="who">AI</span><b class="pts" id="pts-ai">0</b><span class="unit">点</span></div>
+  </header>
+  <div class="tug" aria-hidden="true">
+    <div class="seg you" id="seg-you"></div><div class="seg rest" id="seg-rest"></div><div class="seg ai" id="seg-ai"></div>
+    <div class="half"></div>
+  </div>
+  <div class="tug-legend"><span id="need-you"></span><span id="rest-label"></span><span id="need-ai"></span></div>
+
+  <section class="rail">
+    <div class="rail-title">得点カード</div>
+    <div class="chips" id="prize-chips"></div>
+  </section>
+
+  <section class="stage" id="stage">
+    <div class="slot you" id="slot-you"><div class="slot-label">あなた</div><div class="slot-card" id="card-you"></div></div>
+    <div class="prize-wrap">
+      <div class="prize" id="prize"><span class="prize-tag">得点</span><b id="prize-num"></b></div>
+      <div class="carry" id="carry"></div>
+    </div>
+    <div class="slot ai" id="slot-ai"><div class="slot-label">AI</div><div class="slot-card" id="card-ai"></div></div>
+    <div class="banner" id="banner" hidden></div>
+    <div class="float" id="float"></div>
+    <div class="ribbon" id="ribbon"></div>
+  </section>
+
+  <section class="opp">
+    <div class="rail-title">AIの残りの手札 <span id="opp-sum"></span></div>
+    <div class="mini-row" id="opp-hand"></div>
+  </section>
+
+  <div class="meter"><span>AIの見立て</span><div class="meter-bar"><i id="meter-you"></i></div><span id="meter-text"></span></div>
+
+  <section class="hand-area">
+    <div class="hand-hint" id="hand-hint">出す札をクリック（キーボードの 1〜9・0 でもOK）</div>
+    <div class="hand" id="hand"></div>
+  </section>
+
+  <section class="review" id="review" hidden>
+    <div class="review-head" id="review-head"></div>
+    <div class="review-body">
+      <div class="read">
+        <div class="read-title">AIの読み（このラウンドであなたが出す札の予測）</div>
+        <div class="read-bars" id="read-bars"></div>
+      </div>
+      <div class="think" id="think"></div>
+    </div>
+    <div class="stamp" id="stamp"></div>
+  </section>
+
+  <section class="history">
+    <div class="rail-title">これまでの対戦</div>
+    <div class="hist" id="hist"></div>
+  </section>
+</div>
