@@ -108,3 +108,73 @@ def highlights(cards: list[dict]):
 
 def section(label: str):
     st.html(f'<div class="ya-sec">{label}</div>')
+
+
+def show_chart(chart, height: int = 280):
+    """グラフの見た目をそろえる：文字は大きめ、目盛りと枠は控えめ。"""
+    st.altair_chart(chart.properties(height=height)
+                    .configure_axis(labelFontSize=13, titleFontSize=13, labelColor="#56627a", titleColor="#56627a",
+                                    gridColor="#e9edf3", domainColor="#c9d1de", tickColor="#c9d1de", titleFontWeight=600)
+                    .configure_legend(labelFontSize=13, titleFontSize=13, orient="top")
+                    .configure_view(stroke=None), width="stretch")
+
+
+# ---- 対戦の下（リザルト）：盤面と同じ色づかいの見出し --------------------------------
+_RESULT = """
+<style>
+.ya-res{{display:grid;grid-template-columns:auto 1fr;gap:18px 26px;align-items:center;border-radius:20px;padding:20px 24px;color:#f4f6fb;
+  background:radial-gradient(60% 120% at 0% 0%,{glow} 0%,#12213a 70%,#0b1526 100%);box-shadow:inset 0 0 0 1px #ffffff14,0 10px 30px #0003;
+  font-variant-numeric:tabular-nums}}
+.ya-res .ya-eb{{font-size:11px;font-weight:800;letter-spacing:.2em;color:#b3bdd0}}
+.ya-res .ya-big{{font-size:44px;font-weight:900;line-height:1.1;color:{color};margin:2px 0 4px;letter-spacing:.04em}}
+.ya-res .ya-sc{{font-size:17px;font-weight:800;white-space:nowrap}}
+.ya-res .ya-sc .y{{color:#9cc6f7}}.ya-res .ya-sc .a{{color:#f8b08f}}.ya-res .ya-sc small{{color:#b3bdd0;font-weight:600;font-size:13px}}
+.ya-res .ya-tiles{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}}
+.ya-res .ya-tile{{background:#0b152699;border-radius:14px;padding:10px 14px;box-shadow:inset 0 0 0 1px #ffffff14}}
+.ya-res .ya-tile .k{{font-size:12px;color:#b3bdd0;font-weight:700}}
+.ya-res .ya-tile .v{{font-size:26px;font-weight:900;line-height:1.3}}
+.ya-res .ya-tile .v small{{font-size:13px;color:#b3bdd0;font-weight:700;margin-left:3px}}
+.ya-res .ya-tile .n{{font-size:12px;color:#c3cbda;line-height:1.5}}
+.ya-res .ya-say{{grid-column:1/-1;font-size:15px;line-height:1.7;color:#dfe5ef;border-top:1px solid #ffffff1a;padding-top:12px}}
+.ya-res .ya-say b{{color:#ffe08a}}
+@media(max-width:760px){{.ya-res{{grid-template-columns:1fr}}.ya-res .ya-tiles{{grid-template-columns:1fr 1fr 1fr}}.ya-res .ya-tile .v{{font-size:20px}}}}
+</style>
+<div class="ya-res">
+  <div><div class="ya-eb">RESULT</div><div class="ya-big">{title}</div>
+    <div class="ya-sc"><span class="y">あなた {me}</span> <small>点</small> − <span class="a">{ai} AI</span> <small>点</small></div></div>
+  <div class="ya-tiles">{tiles}</div>
+  <div class="ya-say">{say}</div>
+</div>
+"""
+
+
+def result_hero(me: int, ai: int, tiles: list[tuple[str, str, str, str]], say: str):
+    """リザルトの見出し。tiles：(見出し, 値, 単位, 補足) のリスト。"""
+    title, color, glow = (("勝ち！", "#9cc6f7", "#2a78d633") if me > ai else ("負け…", "#f8b08f", "#eb683426") if me < ai
+                          else ("引き分け", "#ffffff", "#ffffff22"))
+    html = "".join(f'<div class="ya-tile"><div class="k">{k}</div><div class="v">{v}<small>{u}</small></div>'
+                   f'<div class="n">{n}</div></div>' for k, v, u, n in tiles)
+    st.html(_RESULT.format(title=title, color=color, glow=glow, me=me, ai=ai, tiles=html, say=say))
+
+
+# 対戦の下の部分を盤面と同じ幅にそろえる（広い画面で横に伸びすぎないように）
+_BELOW = """
+<style>
+.st-key-below_board{max-width:1180px;margin:0 auto;width:100%}
+.st-key-play_bar{background:#12213a;border-radius:14px;padding:6px 8px 6px 16px;color:#dfe5ef}
+.st-key-play_bar p{color:#dfe5ef;margin:0}
+.st-key-share_box{background:#fff;border:1px solid #d9e0ec;border-radius:16px;padding:16px 18px;border-top:5px solid #2a78d6}
+.st-key-review_box{background:#fff;border:1px solid #d9e0ec;border-radius:16px;padding:6px 18px 12px}
+</style>
+"""
+_REVEAL_LATER = """
+<style>
+/* 最後のラウンドの札がめくれて点が動き終わるまで（約3秒）、リザルトを見せない */
+.st-key-below_board{animation:ya-later .6s ease 3s both}
+@keyframes ya-later{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+</style>
+"""
+
+
+def below_board_css(reveal_later: bool = False):
+    st.html(_BELOW + (_REVEAL_LATER if reveal_later else ""))

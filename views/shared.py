@@ -15,6 +15,7 @@ import streamlit as st
 from game import replay
 from ml import opp_dataset
 from views.ui import answer, data_css, highlights, page_header, question, section
+from views.ui import show_chart as _show
 
 HUMAN, AI, GRAY = "#2a78d6", "#eb6834", "#a3acbb"
 BLUES = ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"]
@@ -94,15 +95,6 @@ def round_frame(games: list[dict]) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 def _few(n: int) -> str:
     return f"（ただし比べた手数がまだ {n} 手と少ないので、偶然の差かもしれません）" if n < FEW else ""
-
-
-def _show(chart, height: int = 280):
-    """グラフの見た目をそろえる：文字は大きめ、目盛りと枠は控えめ。"""
-    st.altair_chart(chart.properties(height=height)
-                    .configure_axis(labelFontSize=13, titleFontSize=13, labelColor="#56627a", titleColor="#56627a",
-                                    gridColor="#e9edf3", domainColor="#c9d1de", tickColor="#c9d1de", titleFontWeight=600)
-                    .configure_legend(labelFontSize=13, titleFontSize=13, orient="top")
-                    .configure_view(stroke=None), width="stretch")
 
 
 def _bars(df: pd.DataFrame, x: str, y: str, x_title: str, y_title: str, fmt: str, color: str = HUMAN,

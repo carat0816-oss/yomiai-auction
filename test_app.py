@@ -37,7 +37,8 @@ for r in range(10):
     assert not at.exception, at.exception
     assert len(at.session_state["state"]["hands"][0]) == 9 - r
 assert at.session_state["state"]["r"] == 10
-assert any(m.label == "AIの読みの的中" for m in at.metric)
+assert any(b.label == "もう一度対戦する" for b in at.button)
+assert "just_over" not in at.session_state               # 遅れて見せるのは、終わった直後の1回だけ
 assert at.session_state["rec"]["rounds"][0]["think_ms"] == 1200
 print("PASS: 対戦を最後まで進めてリザルト")
 
