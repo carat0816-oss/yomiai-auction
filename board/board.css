@@ -2,21 +2,38 @@
 [hidden]{display:none!important}
 .table{
   --you:#3987e5; --you-deep:#1c5cab; --ai:#eb6834; --ai-deep:#b8461b; --gold:#f2c14e; --gold-deep:#b8860b;
-  --ink:#f4f6fb; --muted:#9aa6bd; --line:#2b3a55; --felt:#12213a;
+  --ink:#f4f6fb; --muted:#b3bdd0; --line:#2b3a55; --felt:#12213a;
   font-family:system-ui,-apple-system,'Hiragino Sans','Yu Gothic UI','Yu Gothic',sans-serif;
   color:var(--ink); background:radial-gradient(120% 80% at 50% 35%,#1b3150 0%,#12213a 55%,#0b1526 100%);
   border-radius:22px; padding:18px 18px 22px; outline:none; position:relative; overflow:hidden;
   font-variant-numeric:tabular-nums; user-select:none; -webkit-user-select:none;
   box-shadow:inset 0 0 0 1px #ffffff14, 0 10px 30px #0004;
 }
-.rail-title{font-size:11px;letter-spacing:.12em;color:var(--muted);margin:0 0 6px;font-weight:700}
+.rail-title{font-size:13px;color:#dfe5ef;margin:0 0 8px;font-weight:800}
+.rail-title small{font-size:11px;font-weight:600;color:var(--muted);margin-left:6px}
+.rail-title .y{color:#9cc6f7}.rail-title .a{color:#f8b08f}
+
+/* ---- ゾーン（上＝AI、下＝あなた）---- */
+.zone{border-radius:16px;padding:10px 12px 12px;box-shadow:inset 0 0 0 2px var(--zc)}
+.ai-zone{--zc:#eb683480;background:linear-gradient(180deg,#eb683418,#eb683406)}
+.you-zone{--zc:#3987e580;background:linear-gradient(0deg,#3987e518,#3987e506)}
+.zone-head{display:flex;justify-content:space-between;align-items:center;gap:6px 10px;margin-bottom:8px;flex-wrap:wrap}
+.zone-name{font-size:15px;font-weight:800;letter-spacing:.03em}
+.zone-name.ai{color:#fbc8b1}.zone-name.you{color:#bcd9fb}
+.zone-name small{font-size:11px;font-weight:600;color:var(--muted)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:12px;font-weight:700;color:#dfe5ef;padding:3px 10px;border-radius:999px;background:#0b152699;box-shadow:inset 0 0 0 1px #ffffff1f}
+.badge b{font-size:15px;color:#fff;margin-left:3px}
+
+/* ---- スコアボード（真ん中）---- */
+.scoreboard{margin:12px 0 0;padding:12px 12px 10px;border-radius:16px;background:#0b1526b8;box-shadow:inset 0 0 0 1px #ffffff1a}
 
 /* ---- スコア ---- */
 .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
-.plate{display:flex;align-items:baseline;gap:6px;padding:8px 14px;border-radius:14px;background:#ffffff0d;box-shadow:inset 0 0 0 1px #ffffff12}
+.plate{display:flex;align-items:baseline;gap:6px;padding:5px 14px;border-radius:14px;background:#ffffff0d;box-shadow:inset 0 0 0 1px #ffffff12}
 .plate.you{border-left:5px solid var(--you)}
 .plate.ai{justify-content:flex-end;border-right:5px solid var(--ai)}
-.who{font-size:13px;font-weight:700;color:var(--muted)}
+.who{font-size:14px;font-weight:800;color:#dfe5ef}
 .pts{font-size:34px;line-height:1;font-weight:800}
 .plate.you .pts{color:#9cc6f7}.plate.ai .pts{color:#f8b08f}
 .unit{font-size:12px;color:var(--muted)}
@@ -26,22 +43,23 @@
 .round span{display:block;font-size:10px;letter-spacing:.2em;color:var(--muted)}
 .round b{font-size:26px}.round small{color:var(--muted);font-size:12px;margin-left:2px}
 
-.tug{position:relative;display:flex;height:16px;margin:14px 0 4px;border-radius:9px;overflow:hidden;background:#0a1322;gap:2px}
+.tug{position:relative;display:flex;height:16px;margin:10px 0 4px;border-radius:9px;overflow:hidden;background:#0a1322;gap:2px}
 .seg{height:100%;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 .seg.you{background:linear-gradient(90deg,var(--you-deep),var(--you))}
 .seg.ai{background:linear-gradient(90deg,var(--ai),var(--ai-deep))}
 .seg.rest{background:repeating-linear-gradient(135deg,#2a3954 0 6px,#24324b 6px 12px);flex:1}
 .half{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#fff;box-shadow:0 0 6px #fff}
-.tug-legend{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px}
+.tug-legend{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;font-size:12.5px;color:var(--muted);margin-top:6px;min-height:14px}
 .tug-legend span:nth-child(2){text-align:center}.tug-legend span:last-child{text-align:right}
 .tug-legend .line{display:inline-block;width:3px;height:10px;background:#fff;vertical-align:-1px;margin:0 3px;box-shadow:0 0 4px #fff}
 .tug-legend b{color:var(--ink)}
 
 /* ---- 得点カードのレール ---- */
-.rail{margin-top:14px}
+.rail{margin-top:10px}
+.rail .rail-title{text-align:left}
 .chips{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
 .chip{position:relative;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;
-  max-width:46px;justify-self:center;width:100%;background:radial-gradient(circle at 35% 30%,#fff8de,#f1dfa8);color:#6b4e00;
+  max-width:40px;justify-self:center;width:100%;background:radial-gradient(circle at 35% 30%,#fff8de,#f1dfa8);color:#6b4e00;
   box-shadow:inset 0 0 0 2px #d9b65a,inset 0 -3px 0 #0002;transition:all .5s}
 .chip.done{color:#fff;box-shadow:none}
 .chip.done.you{background:var(--you)}
@@ -54,9 +72,9 @@
 @keyframes glow{50%{box-shadow:0 0 0 2px #fff,0 0 22px #f2c14ecc}}
 
 /* ---- 場 ---- */
-.stage{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:16px 0 10px;
+.stage{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:8px 0 10px;
   padding:16px 8px;border-radius:18px;background:radial-gradient(70% 90% at 50% 50%,#1f6b4a 0%,#17543b 60%,#123f2d 100%);
-  box-shadow:inset 0 0 0 2px #ffffff18,inset 0 8px 24px #0005;min-height:200px}
+  box-shadow:inset 0 0 0 2px #ffffff18,inset 0 8px 24px #0005;min-height:180px}
 .slot{display:flex;flex-direction:column;align-items:center;gap:6px}
 .slot-label{font-size:12px;font-weight:800;letter-spacing:.08em}
 .slot.you .slot-label{color:#bcd9fb}.slot.ai .slot-label{color:#fbc8b1}
@@ -126,30 +144,29 @@
   padding:4px 12px;border-radius:999px;background:#0b1526cc;box-shadow:inset 0 0 0 1px #ffffff22;animation:fade .4s}
 .ribbon:empty{display:none}
 .ribbon .you{color:#9cc6f7}.ribbon .ai{color:#f8b08f}.ribbon .hit{color:#ffd0bb}.ribbon .miss{color:#bcd9fb}
-.stage{padding-top:40px}
+.stage{padding-top:36px;padding-bottom:12px}
 
-/* ---- AIの残り手札 ---- */
-.opp{margin-top:6px}
+/* ---- AIの手札 ---- */
 .mini-row{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
 .mini{position:relative;aspect-ratio:5/7;border-radius:7px;background:#fffdf7;color:var(--ai-deep);display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:18px;border-top:4px solid var(--ai);box-shadow:0 3px 8px #0004;transition:all .4s}
+  font-weight:900;font-size:22px;border-top:5px solid var(--ai);box-shadow:0 3px 8px #0004;transition:all .4s}
 .mini.used{background:#1b2840;color:#55627c;border-top-color:#38455f;box-shadow:none}
 .mini.used::after{content:"";position:absolute;left:12%;right:12%;top:50%;height:2px;background:#55627c;transform:rotate(-20deg)}
-.mini small{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#7d89a3}
+.mini small{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:10px;font-weight:800;color:#c3cbda}
 .mini.best{box-shadow:0 0 0 2px #fff,0 3px 8px #0004}
 .mini.just{animation:just .8s ease-out}
 @keyframes just{0%{background:#ffe2d3;transform:scale(1.15)}100%{}}
-#opp-sum{letter-spacing:0;font-weight:600;margin-left:6px;color:#c7cfdd}
 
-.meter{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:11px;color:var(--muted)}
+
+.meter{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:12px;color:var(--muted)}
 .meter-bar{flex:1;height:6px;border-radius:4px;background:var(--ai);overflow:hidden}
 .meter-bar i{display:block;height:100%;background:var(--you);transition:width .8s}
 #meter-text{min-width:9em;text-align:right;color:var(--ink)}
 
 /* ---- 自分の手札（扇） ---- */
-.hand-area{margin-top:10px;padding-bottom:14px}
-.hand-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:4px;min-height:16px}
-.hand{position:relative;height:128px;display:flex;justify-content:center;align-items:flex-end;padding-bottom:6px}
+.hand-area{margin-top:10px;padding-bottom:12px}
+.hand-hint{font-size:12.5px;color:#dfe5ef;min-height:16px}
+.hand{position:relative;height:110px;display:flex;justify-content:center;align-items:flex-end;padding-bottom:6px}
 .hcard{all:unset;box-sizing:border-box;position:relative;width:var(--w,64px);height:calc(var(--w,64px) * 1.42);margin:0 calc(var(--overlap,-10px) / 2);
   border-radius:11px;background:#fffdf7;color:var(--you-deep);border-top:6px solid var(--you);cursor:pointer;
   display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px #0006,inset 0 0 0 1px #0001;
@@ -169,17 +186,17 @@
 .review-head{font-size:14px;font-weight:700;margin-bottom:10px;padding-right:118px;line-height:1.6}
 .review-head .you{color:#9cc6f7}.review-head .ai{color:#f8b08f}
 .review-body{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}
-.read-title{font-size:11px;color:var(--muted);margin-bottom:6px}
+.read-title{font-size:12.5px;color:var(--muted);margin-bottom:6px}
 .read-bars{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;align-items:end;height:96px}
 .rb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
 .rb i{display:block;width:100%;border-radius:4px 4px 0 0;background:#55627c;min-height:2px;transition:height .6s cubic-bezier(.2,.8,.2,1)}
 .rb.played i{background:var(--you)}
 .rb.top i{box-shadow:0 0 0 2px #fff}
-.rb span{font-size:11px;font-weight:800;color:var(--muted)}
+.rb span{font-size:12px;font-weight:800;color:var(--muted)}
 .rb.played span{color:#9cc6f7}
-.rb em{font-style:normal;font-size:9px;color:var(--muted);min-height:11px}
+.rb em{font-style:normal;font-size:10px;color:var(--muted);min-height:11px}
 .rb.na span{opacity:.3}
-.think{font-size:12px;line-height:1.7;color:#d6dceb}
+.think{font-size:13px;line-height:1.7;color:#d6dceb}
 .think b{color:#fff}
 .think .ev{display:flex;align-items:center;gap:6px}
 .think .ev i{display:inline-block;height:6px;border-radius:3px;background:var(--ai)}
@@ -192,8 +209,8 @@
 /* ---- これまでの対戦 ---- */
 .history{margin-top:14px}
 .hist{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
-.h{border-radius:8px;background:#ffffff0a;padding:4px 0;text-align:center;font-size:11px;line-height:1.35;box-shadow:inset 0 0 0 1px #ffffff10}
-.h .p{display:block;font-weight:900;color:#ffe08a;font-size:12px}
+.h{border-radius:8px;background:#ffffff0a;padding:5px 0;text-align:center;font-size:13px;line-height:1.35;box-shadow:inset 0 0 0 1px #ffffff10}
+.h .p{display:block;font-weight:900;color:#ffe08a;font-size:12px;border-bottom:1px solid #ffffff14;margin:0 4px 2px;padding-bottom:2px}
 .h .y{color:#9cc6f7}.h .a{color:#f8b08f}
 .h .y.w,.h .a.w{font-weight:900;text-decoration:underline;text-underline-offset:2px}
 .h.empty{opacity:.35}
@@ -206,7 +223,11 @@
   .slot-card{width:60px;height:86px}
   .prize{width:82px;height:112px}.prize b{font-size:50px}
   .pcard .num{font-size:34px}
-  .chip{font-size:12px}.chips{gap:3px}.mini{font-size:14px}.mini-row{gap:3px}
+  .chip{font-size:12px}.chips{gap:3px}.mini{font-size:16px}.mini-row{gap:3px}
+  .zone{padding:8px 8px 10px}.zone-name{font-size:14px}.zone-name small{display:none}
+  .badge{font-size:11px;padding:2px 8px}.badge b{font-size:13px}
+  .rail-title small{display:block;margin:2px 0 0}
+  .mini small{font-size:8px}
   .review-body{grid-template-columns:1fr}
   .ribbon{font-size:10px;padding:3px 8px;max-width:96%;overflow:hidden;text-overflow:ellipsis}
   .chip small{font-size:8px}

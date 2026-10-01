@@ -1,20 +1,34 @@
 <div class="table" tabindex="0" aria-label="読み合いオークションの盤面">
-  <header class="top">
-    <div class="plate you"><span class="who">あなた</span><b class="pts" id="pts-you">0</b><span class="unit">点</span></div>
-    <div class="round"><span>ROUND</span><b id="round">1</b><small>/ 10</small></div>
-    <div class="plate ai"><span class="who">AI</span><b class="pts" id="pts-ai">0</b><span class="unit">点</span></div>
-  </header>
-  <div class="tug" aria-hidden="true">
-    <div class="seg you" id="seg-you"></div><div class="seg rest" id="seg-rest"></div><div class="seg ai" id="seg-ai"></div>
-    <div class="half"></div>
-  </div>
-  <div class="tug-legend"><span id="need-you"></span><span id="rest-label"></span><span id="need-ai"></span></div>
+  <!-- 上：AIのエリア（相手の情報は上にまとめる） -->
+  <section class="zone ai-zone">
+    <div class="zone-head">
+      <span class="zone-name ai">🤖 AI の手札 <small>（使った札は公開されている）</small></span>
+      <span class="badges" id="opp-sum"></span>
+    </div>
+    <div class="mini-row" id="opp-hand"></div>
+  </section>
+
+  <!-- 真ん中：スコアボード -->
+  <section class="scoreboard">
+    <header class="top">
+      <div class="plate you"><span class="who">あなた</span><b class="pts" id="pts-you">0</b><span class="unit">点</span></div>
+      <div class="round"><span>ROUND</span><b id="round">1</b><small>/ 10</small></div>
+      <div class="plate ai"><span class="who">AI</span><b class="pts" id="pts-ai">0</b><span class="unit">点</span></div>
+    </header>
+    <div class="tug" aria-hidden="true">
+      <div class="seg you" id="seg-you"></div><div class="seg rest" id="seg-rest"></div><div class="seg ai" id="seg-ai"></div>
+      <div class="half"></div>
+    </div>
+    <div class="tug-legend"><span id="need-you"></span><span id="rest-label"></span><span id="need-ai"></span></div>
+    <div class="meter"><span>AIの見立て（勝率）</span><div class="meter-bar"><i id="meter-you"></i></div><span id="meter-text"></span></div>
+  </section>
 
   <section class="rail">
-    <div class="rail-title">得点カード</div>
+    <div class="rail-title">得点カード <small>色＝取った人 ／ 白＝まだ出ていない ／ 金＝いまの得点カード</small></div>
     <div class="chips" id="prize-chips"></div>
   </section>
 
+  <!-- 場 -->
   <section class="stage" id="stage">
     <div class="slot you" id="slot-you"><div class="slot-label">あなた</div><div class="slot-card" id="card-you"></div></div>
     <div class="prize-wrap">
@@ -27,15 +41,12 @@
     <div class="ribbon" id="ribbon"></div>
   </section>
 
-  <section class="opp">
-    <div class="rail-title">AIの残りの手札 <span id="opp-sum"></span></div>
-    <div class="mini-row" id="opp-hand"></div>
-  </section>
-
-  <div class="meter"><span>AIの見立て</span><div class="meter-bar"><i id="meter-you"></i></div><span id="meter-text"></span></div>
-
-  <section class="hand-area">
-    <div class="hand-hint" id="hand-hint">出す札をクリック（キーボードの 1〜9・0 でもOK）</div>
+  <!-- 下：あなたのエリア -->
+  <section class="zone you-zone hand-area">
+    <div class="zone-head">
+      <span class="zone-name you">あなたの手札</span>
+      <span class="hand-hint" id="hand-hint">出す札をクリック（キーボードの 1〜9・0 でもOK）</span>
+    </div>
     <div class="hand" id="hand"></div>
   </section>
 
@@ -52,7 +63,7 @@
   </section>
 
   <section class="history">
-    <div class="rail-title">これまでの対戦</div>
+    <div class="rail-title">これまでの対戦 <small>上＝得点 ／ <span class="y">青＝あなた</span> <span class="a">オレンジ＝AI</span>（下線＝勝った方）</small></div>
     <div class="hist" id="hist"></div>
   </section>
 </div>

@@ -69,11 +69,13 @@ export default function (component) {
     $('opp-hand').innerHTML = Array.from({ length: 10 }, (_, i) => i + 1).map(v => {
       const has = hand.includes(v);
       const cls = ['mini', has ? '' : 'used', has && v === best ? 'best' : '', v === justCard ? 'just' : ''].join(' ');
-      return `<div class="${cls}">${v}${!has && usedAt[v] ? `<small>R${usedAt[v]}</small>` : ''}</div>`;
+      const tip = has ? (v === best ? 'AIの最強札' : 'まだ持っている') : `R${usedAt[v]} で使った`;
+      return `<div class="${cls}" title="${tip}">${v}${!has && usedAt[v] ? `<small>R${usedAt[v]}使用</small>` : ''}</div>`;
     }).join('');
     const sum = hand.reduce((a, b) => a + b, 0);
-    $('opp-sum').textContent = hand.length
-      ? `最強 ${best} ・ 合計 ${sum} ・ 8以上 ${hand.filter(c => c >= 8).length}枚`
+    $('opp-sum').innerHTML = hand.length
+      ? `<span class="badge">残り<b>${hand.length}</b>枚</span><span class="badge">最強<b>${best}</b></span>` +
+        `<span class="badge">8以上<b>${hand.filter(c => c >= 8).length}</b>枚</span><span class="badge">合計<b>${sum}</b></span>`
       : '';
   }
   function drawHistory() {
@@ -109,19 +111,22 @@ export default function (component) {
     const hand = data.hands[0];
     const n = hand.length, mid = (n - 1) / 2;
     // 手札が盤面の幅に収まるように、札の幅と重なり具合を決める（扇の傾き分の余白も見込む）
-    const avail = el.clientWidth - 48;
+    const hw = $('hand');
+    const avail = hw.clientWidth - 28;   // 手札エリアの幅（扇の傾きではみ出す分を引く）
     const w = Math.max(38, Math.min(66, avail / Math.max(n * 0.8, 1)));
     const gap = Math.min(4, (avail - w) / Math.max(n - 1, 1) - w);   // 札と札の間（マイナスなら重なる）
-    const hw = $('hand');
     hw.classList.toggle('locked', locked);
     hw.style.setProperty('--w', `${w}px`);
     hw.style.setProperty('--overlap', `${Math.round(gap)}px`);
+    hw.style.height = `${Math.round(w * 1.42 + mid * mid + 30)}px`;   // 札の高さ＋扇の下がり＋持ち上げる分
     hw.innerHTML = hand.map((v, i) => {
       const d = i - mid;
-      return `<button class="hcard" data-card="${v}" style="--r:${(d * 3.2).toFixed(1)}deg;--y:${(d * d * 1.6).toFixed(1)}px" ` +
+      return `<button class="hcard" data-card="${v}" style="--r:${(d * 3.2).toFixed(1)}deg;--y:${(d * d * 1.0).toFixed(1)}px" ` +
         `aria-label="${v} を出す" ${locked ? 'tabindex="-1"' : ''}><span class="tl">${v}</span><span class="num">${v}</span></button>`;
     }).join('');
-    $('hand-hint').textContent = data.over ? '' : locked ? '…' : '出す札をクリック（キーボードの 1〜9・0 でもOK）';
+    const touch = window.matchMedia('(pointer: coarse)').matches;
+    $('hand-hint').textContent = data.over ? '' : locked ? '…'
+      : touch ? 'タップして出す' : '出す札をクリック（キーボードの 1〜9・0 でもOK）';
     hw.parentElement.hidden = !!data.over;
   }
   function drawReview() {
