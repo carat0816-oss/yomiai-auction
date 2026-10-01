@@ -8,10 +8,10 @@ import numpy as np
 import pandas as pd
 
 from game import between, candidate_rows, is_over, new_game, outcome, rank_in, resolve, situation
-from ml import OPP_DEFAULT, WIN_DEFAULT, heuristic_opp, make_model, normalize, opp_dataset, win_dataset
+from ml import OPP_DEFAULT, WIN_DEFAULT, WIN_RICH, heuristic_opp, make_model, normalize, opp_dataset, win_dataset
 
 MIN_HUMAN_DECISIONS = 150   # 人間の手がこれだけ集まるまでは、相手の読みにルール（ベースライン）を使う
-TEMPERATURE = 0.1           # 札選びのゆらぎ。0 に近いほど期待勝率が最大の札を必ず選ぶ
+MARGIN = 0.05               # 札選びの迷う幅：期待勝率が最善からこれだけ以内の札だけを候補にする（0.05＝5ポイント）
 
 
 # ---------------------------------------------------------------------------
@@ -120,8 +120,11 @@ class Brain:
         return out
 
     def choose(self, state: dict, me: int, rng: random.Random, think_ms=None, profile=None,
-               temperature: float = TEMPERATURE) -> dict:
-        """札を選ぶ。返り値：選んだ札・相手の読み・札ごとの期待勝率。"""
+               margin: float = MARGIN) -> dict:
+        """札を選ぶ。返り値：選んだ札・相手の読み・札ごとの期待勝率・候補の札。
+
+        人間らしく迷わせるが、明らかに悪い札は選ばない：期待勝率が最善から margin 以内の札だけを候補にして、
+        その中で良い札ほど選ばれやすくくじを引く（最善の札が一番選ばれやすい）。"""
         opp = 1 - me
         probs = self.read(state, opp, think_ms, profile)
         mine = state["hands"][me]
@@ -135,29 +138,68 @@ class Brain:
         for (a, b), v in zip(keys, vals):
             ev[a] += probs[b] * v
         best = max(ev.values())
-        weights = [math.exp((ev[a] - best) / max(temperature, 1e-6)) for a in mine]
-        card = rng.choices(mine, weights=weights)[0]
-        return {"card": card, "read": probs, "ev": ev, "win": ev[card]}
+        margin = max(margin, 1e-6)
+        cands = [a for a in mine if ev[a] >= best - margin]
+        weights = [math.exp((ev[a] - best) / (margin / 3)) for a in cands]
+        card = rng.choices(cands, weights=weights)[0]
+        z = sum(weights)
+        return {"card": card, "read": probs, "ev": ev, "win": ev[card],
+                "cands": {a: w / z for a, w in zip(cands, weights)}}
+
+
+def ai_game(b0, b1, rng: random.Random, game_id: str, margin: float = MARGIN) -> dict:
+    """AIが入った対戦（b が Brain ならAI、dict ならルールボット）。勝率モデルの学び直しに使う。"""
+    state = new_game(rng)
+    rounds = []
+    while not is_over(state):
+        cs = [b.choose(state, me, rng, margin=margin)["card"] if isinstance(b, Brain) else bot_card(state, me, b["persona"], rng)
+              for me, b in enumerate((b0, b1))]
+        rounds.append({"round": state["r"] + 1, "prize": state["prizes"][state["r"]], "human_card": cs[0], "ai_card": cs[1],
+                       "think_ms": None})
+        state = resolve(state, *cs)
+    return {"game_id": game_id, "player": "AI自己対戦", "prizes": state["prizes"], "rounds": rounds}
+
+
+WIN_PARAMS = {"n_trees": 400, "leaves": 31, "min_leaf": 40, "lr": 0.05}
 
 
 def train_brain(human_games: list[dict], seed: int = 0, opp_name: str = "LightGBM",
-                opp_features: list[str] | None = None, bootstrap_games: int = 1500,
-                opp_params: dict | None = None) -> Brain:
-    """人間の対戦記録（＋ボットの自己対戦）から AI の頭脳を作る。"""
+                opp_features: list[str] | None = None, bootstrap_games: int = 20000, self_play_games: int = 4000,
+                opp_params: dict | None = None, log=lambda msg: None) -> Brain:
+    """人間の対戦記録（＋ボットとAIの自己対戦）から AI の頭脳を作る。
+
+    勝率モデルは2段階で作る：
+      1. ルールボット同士の対戦（bootstrap_games 試合）で下地を作る
+      2. そのモデルで動くAIを、AI同士・ボット相手に戦わせ（self_play_games 試合）、その対戦も足して学び直す
+    人間の対戦も足す。相手の読みは、人間の手が MIN_HUMAN_DECISIONS に届くまではルールを使う。"""
     rng = random.Random(seed)
-    # 勝率モデル：ボット同士の対戦で下地を作り、人間の対戦も足す
+    n_human = sum(len(g["rounds"]) for g in human_games)
+    feats = list(opp_features or OPP_DEFAULT)
+    opp_model = None
+    if n_human >= MIN_HUMAN_DECISIONS:
+        odf = opp_dataset(human_games)
+        opp_model = make_model(opp_name, feats, opp_params).fit(odf[feats], odf["chosen"])
+    opp_label = f"{opp_name}（人間 {n_human} 手で学習）" if opp_model is not None else "ルール（ベースライン）"
+
+    log(f"ボット同士の対戦 {bootstrap_games} 試合で勝率モデルの下地を作っています…")
     boot = [bot_game(make_bot_player(rng), make_bot_player(rng), rng, f"boot-{i}") for i in range(bootstrap_games)]
     wdf = win_dataset(boot + human_games)
-    win_model = make_model("LightGBM", WIN_DEFAULT, {"n_trees": 150, "leaves": 15, "min_leaf": 40}).fit(
-        wdf[WIN_DEFAULT], wdf["won"])
-    n_human = sum(len(g["rounds"]) for g in human_games)
-    if n_human < MIN_HUMAN_DECISIONS:
-        return Brain(win_model=win_model, win_name="LightGBM（ボット対戦で学習）", n_human=n_human)
-    feats = list(opp_features or OPP_DEFAULT)
-    odf = opp_dataset(human_games)
-    opp_model = make_model(opp_name, feats, opp_params).fit(odf[feats], odf["chosen"])
-    return Brain(opp_model=opp_model, win_model=win_model, opp_name=f"{opp_name}（人間 {n_human} 手で学習）",
-                 win_name="LightGBM（ボット対戦＋人間の対戦で学習）", opp_features=feats, n_human=n_human)
+    win_model = make_model("LightGBM", WIN_RICH, WIN_PARAMS).fit(wdf[WIN_RICH], wdf["won"])
+    brain = Brain(opp_model=opp_model, win_model=win_model, opp_name=opp_label, win_features=WIN_RICH, n_human=n_human,
+                  opp_features=feats if opp_model is not None else OPP_DEFAULT)
+    if self_play_games:
+        log(f"AIを {self_play_games} 試合戦わせて、勝率モデルを学び直しています…")
+        games = []
+        for i in range(self_play_games):
+            kind = i % 3   # AI同士・AIが先手・AIが後手 を順番に
+            b0 = brain if kind != 2 else make_bot_player(rng)
+            b1 = brain if kind != 1 else make_bot_player(rng)
+            games.append(ai_game(b0, b1, rng, f"self-{i}"))
+        wdf = pd.concat([wdf, win_dataset(games)], ignore_index=True)
+        brain.win_model = make_model("LightGBM", WIN_RICH, WIN_PARAMS).fit(wdf[WIN_RICH], wdf["won"])
+    brain.win_name = (f"LightGBM・38特徴（ボット対戦 {bootstrap_games}＋AI自己対戦 {self_play_games}"
+                      + (f"＋人間 {len(human_games)} 試合" if human_games else "") + "）")
+    return brain
 
 
 def ai_vs_bots(brain: Brain, n: int = 200, seed: int = 1) -> float:

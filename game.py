@@ -152,6 +152,10 @@ def between(state: dict, me: int) -> dict:
         "sum_gap": sum(mine) - sum(theirs),
         "high_gap": sum(c >= HIGH for c in mine) - sum(c >= HIGH for c in theirs),
         "min_gap": min(mine) - min(theirs),
+        # どの札が残っているか（自分・相手の手札、まだ出ていない得点カード）。1＝残っている
+        **{f"my_{k}": int(k in mine) for k in CARDS},
+        **{f"opp_{k}": int(k in theirs) for k in CARDS},
+        **{f"left_{k}": int(k in state["prizes"][state["r"]:]) for k in CARDS},
     }
 
 

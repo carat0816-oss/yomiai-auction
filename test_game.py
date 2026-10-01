@@ -74,8 +74,14 @@ rng = random.Random(0)
 st0 = new_game(rng)
 ch = brain.choose(st0, 1, rng)
 assert ch["card"] in st0["hands"][1] and abs(sum(ch["read"].values()) - 1) < 1e-6
-trained = train_brain(dummy_games(20, 3, seed=1), bootstrap_games=300)
+trained = train_brain(dummy_games(20, 3, seed=1), bootstrap_games=300, self_play_games=30)
 assert trained.opp_model is not None
+# 候補の絞り込み：選ばれた札は、期待勝率が最善から迷う幅以内
+for mg in (0.02, 0.1):
+    ch = trained.choose(new_game(rng), 1, rng, margin=mg)
+    assert max(ch["ev"].values()) - ch["ev"][ch["card"]] <= mg + 1e-9
+    assert set(ch["cands"]) == {a for a, v in ch["ev"].items() if v >= max(ch["ev"].values()) - mg}
+    assert abs(sum(ch["cands"].values()) - 1) < 1e-6
 for _ in range(3):                                       # 反則しない
     st_ = new_game(rng)
     while st_["r"] < 10:

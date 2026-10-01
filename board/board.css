@@ -69,22 +69,37 @@
 .tug-legend .line{display:inline-block;width:3px;height:10px;background:#fff;vertical-align:-1px;margin:0 3px;box-shadow:0 0 4px #fff}
 .tug-legend b{color:var(--ink)}
 
-/* ---- 得点カードのレール ---- */
-.rail{margin-top:10px}
-.rail .rail-title{text-align:left}
-.chips{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
-.chip{position:relative;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;
-  max-width:40px;justify-self:center;width:100%;background:radial-gradient(circle at 35% 30%,#fff8de,#f1dfa8);color:#6b4e00;
+/* ---- 得点カード（3つのトレイ）---- */
+.trays{display:grid;grid-template-columns:1fr 1.5fr 1fr;grid-template-areas:"you rest ai";gap:8px;margin-top:10px}
+.tray{border-radius:14px;padding:8px 8px 10px;background:#0b152680;box-shadow:inset 0 0 0 1.5px var(--tc,#ffffff1f);min-width:0}
+.tray.you{grid-area:you;--tc:#3987e570;background:linear-gradient(180deg,#3987e51c,#0b152680)}
+.tray.ai{grid-area:ai;--tc:#eb683470;background:linear-gradient(180deg,#eb68341c,#0b152680)}
+.tray.rest{grid-area:rest;--tc:#f2c14e55}
+.tray-head{font-size:12.5px;font-weight:800;color:#dfe5ef;margin-bottom:7px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tray-head b{font-size:16px;margin:0 1px 0 4px}
+.tray.you .tray-head b{color:#9cc6f7}.tray.ai .tray-head b{color:#f8b08f}.tray.rest .tray-head b{color:#ffe08a}
+.tray-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 4px;min-height:44px;align-content:flex-start}
+.tray-chips:empty::before{content:"まだなし";font-size:11.5px;color:#7d8aa3;align-self:center;padding-top:12px}
+.chip{position:relative;width:34px;height:34px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:15px;background:radial-gradient(circle at 35% 30%,#fff8de,#f1dfa8);color:#6b4e00;
   box-shadow:inset 0 0 0 2px #d9b65a,inset 0 -3px 0 #0002;transition:all .5s}
-.chip.done{color:#fff;box-shadow:none}
-.chip.done.you{background:var(--you)}
-.chip.done.ai{background:var(--ai)}
-.chip.done.none{background:#3a4660;color:#9aa6bd}
-.chip.now{background:linear-gradient(160deg,#ffe08a,var(--gold));color:#3b2a00;box-shadow:0 0 0 2px #fff,0 0 14px #f2c14e99;animation:glow 1.6s ease-in-out infinite}
-.chip.held{background:linear-gradient(160deg,#ffe08a,var(--gold));color:#3b2a00;opacity:.6}
-.chip small{position:absolute;bottom:-13px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:var(--muted)}
-.chips{padding-bottom:12px}
+.chip.has-r{margin-bottom:10px}
+.chip.you{background:var(--you);color:#fff;box-shadow:inset 0 -3px 0 #0003}
+.chip.ai{background:var(--ai);color:#fff;box-shadow:inset 0 -3px 0 #0003}
+.chip.now{background:linear-gradient(160deg,#ffe08a,var(--gold));color:#3b2a00;box-shadow:0 0 0 2px #fff,0 0 14px #f2c14e99;
+  animation:glow 1.6s ease-in-out infinite;margin-bottom:10px}
+.chip.now::after{content:"いま";position:absolute;bottom:-14px;left:-6px;right:-6px;text-align:center;font-size:9.5px;font-weight:800;color:#ffe08a}
+.chip small{position:absolute;bottom:-13px;left:-4px;right:-4px;text-align:center;font-size:9.5px;font-weight:700;color:var(--muted)}
+.chip.got{animation:got .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes got{0%{transform:scale(1.6);opacity:0}100%{transform:none;opacity:1}}
+.tray-burn{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:#9aa6bd}
+.tray-burn:empty{display:none}
+.tray-burn .chip{width:24px;height:24px;font-size:11px;background:#3a4660;color:#9aa6bd;box-shadow:none;text-decoration:line-through}
 @keyframes glow{50%{box-shadow:0 0 0 2px #fff,0 0 22px #f2c14ecc}}
+@container (max-width:560px){
+  .trays{grid-template-columns:1fr 1fr;grid-template-areas:"rest rest" "you ai"}
+  .chip{width:30px;height:30px;font-size:13px}
+}
 
 /* ---- 場 ---- */
 .stage{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:8px 0 10px;
@@ -211,6 +226,12 @@
 .think b{color:#fff}
 .think .ev{display:flex;align-items:center;gap:6px}
 .think .ev i{display:inline-block;height:6px;border-radius:3px;background:var(--ai)}
+.think .ev{padding:1px 6px;border-radius:6px;opacity:.55}
+.think .ev.cand{opacity:1}
+.think .ev .c{display:inline-block;min-width:1.4em;font-weight:800}
+.think .ev small{font-size:11px;color:#9aa6bd;margin-left:4px}
+.think .ev.picked{background:#eb683426;box-shadow:inset 0 0 0 1px #eb683466}
+.think .cand-key{color:#f8b08f;font-weight:700}
 .stamp{position:absolute;top:10px;right:12px;font-size:13px;font-weight:900;padding:4px 10px;border-radius:8px;transform:rotate(6deg);border:2px solid}
 .stamp.hit{color:#f8b08f;border-color:#f8b08f;animation:stamp .4s cubic-bezier(.2,1.4,.4,1)}
 .stamp.miss{color:#9cc6f7;border-color:#9cc6f7;animation:stamp .4s cubic-bezier(.2,1.4,.4,1)}

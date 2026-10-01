@@ -15,9 +15,12 @@
     <div class="tug-legend"><span id="need-you"></span><span id="rest-label"></span><span id="need-ai"></span></div>
   </section>
 
-  <section class="rail">
-    <div class="rail-title">得点カード <small>色＝取った人 ／ 白＝まだ出ていない ／ 金＝いまの得点カード</small></div>
-    <div class="chips" id="prize-chips"></div>
+  <!-- 得点カード：上の点数バーと同じ並び（左＝あなた、真ん中＝まだ出ていない、右＝AI） -->
+  <section class="rail trays">
+    <div class="tray you"><div class="tray-head">あなたが取った <b id="sum-you">0</b>点</div><div class="tray-chips" id="tray-you"></div></div>
+    <div class="tray rest"><div class="tray-head">まだ出ていない得点カード <b id="sum-rest">55</b>点</div>
+      <div class="tray-chips" id="tray-rest"></div><div class="tray-burn" id="tray-burn"></div></div>
+    <div class="tray ai"><div class="tray-head">AIが取った <b id="sum-ai">0</b>点</div><div class="tray-chips" id="tray-ai"></div></div>
   </section>
 
   <!-- AIのエリア（場の向こう側） -->

@@ -28,23 +28,22 @@ export default function (component) {
   const lineOf = burned => Math.floor((TOTAL - burned) / 2) + 1;
 
   // ある時点（log の先頭 k ラウンド）までの、得点カード1〜10の状態
-  function chipState(k, showCurrent) {
-    const st = {};
-    data.log.slice(0, k).forEach(lg => {
-      st[lg.prize] = { cls: 'done ' + (lg.winner === 0 ? 'you' : lg.winner === 1 ? 'ai' : 'none'), r: lg.round,
-                       tie: lg.winner === -1 };
-    });
-    if (showCurrent && data.prize != null) st[data.prize] = { cls: 'now', r: k + 1 };
-    return st;
-  }
-  function drawChips(k, showCurrent) {
-    const st = chipState(k, showCurrent);
-    $('prize-chips').innerHTML = Array.from({ length: 10 }, (_, i) => i + 1).map(v => {
-      const s = st[v];
-      const tip = !s ? 'まだ出ていない' : s.cls === 'now' ? 'いまの得点カード' : s.tie ? `R${s.r} 相打ちで流れた` : `R${s.r}`;
-      const label = s && s.cls !== 'now' ? `<small>${s.tie ? '流れた' : 'R' + s.r}</small>` : '';
-      return `<div class="chip ${s ? s.cls : ''}" title="${tip}">${v}${label}</div>`;
-    }).join('');
+  // 得点カードを3つのトレイに分ける：あなたが取った／まだ出ていない／AIが取った（＋流れた）
+  // k＝何ラウンド目まで結果を反映するか、now＝いまの得点カード（なければ null）、fresh＝いま取られたカード
+  function drawChips(k, now, fresh) {
+    const done = data.log.slice(0, k), taken = new Set(done.map(lg => lg.prize));
+    const chip = (v, cls, r) => `<div class="chip ${cls}${r ? ' has-r' : ''}${v === fresh ? ' got' : ''}" ` +
+      `title="${r ? 'ラウンド' + r : ''}">${v}${r ? `<small>R${r}</small>` : ''}</div>`;
+    const side = w => done.filter(lg => lg.winner === w);
+    $('tray-you').innerHTML = side(0).map(lg => chip(lg.prize, 'you', lg.round)).join('');
+    $('tray-ai').innerHTML = side(1).map(lg => chip(lg.prize, 'ai', lg.round)).join('');
+    const rest = Array.from({ length: 10 }, (_, i) => i + 1).filter(v => !taken.has(v));
+    $('tray-rest').innerHTML = rest.map(v => chip(v, v === now ? 'now' : '')).join('');
+    const burned = side(-1);
+    $('tray-burn').innerHTML = burned.length ? '相打ちで流れた：' + burned.map(lg => chip(lg.prize, '')).join('') : '';
+    $('sum-you').textContent = side(0).reduce((a, lg) => a + lg.prize, 0);
+    $('sum-ai').textContent = side(1).reduce((a, lg) => a + lg.prize, 0);
+    $('sum-rest').textContent = rest.reduce((a, v) => a + v, 0);
   }
   function drawScore(score, burned) {
     $('pts-you').textContent = score[0];
@@ -141,11 +140,16 @@ export default function (component) {
     s.className = 'stamp ' + (forced ? '' : last.top === lg.cards[0] ? 'hit' : 'miss');
     s.textContent = forced ? '' : last.top === lg.cards[0] ? '読まれた！' : '読みを外した！';
     const best = Math.max(...last.ev.map(e => e[1]), 0.01);
+    const nc = last.ev.filter(e => e[2] != null).length;
+    const mine = last.ev.find(e => e[0] === lg.cards[1]);
     $('think').innerHTML = forced ? '最後の1枚なので、読むまでもありません。'
       : `AIの読み：あなたは <b>${last.top}</b> を出す（${pct(probs[last.top])}）<br>` +
-        `<span style="color:#9aa6bd">AIの札ごとの期待勝率</span>` +
-        last.ev.map(([c, v]) => `<div class="ev">${c}：<i style="width:${(v / best) * 60}px"></i>${pct(v)}</div>`).join('') +
-        `→ AIは <b>${lg.cards[1]}</b> を選んだ`;
+        `<span style="color:#9aa6bd">AIの札ごとの期待勝率（<span class="cand-key">候補</span>＝最善に近い札。この中からくじで選ぶ）</span>` +
+        last.ev.map(([c, v, w]) => `<div class="ev${w != null ? ' cand' : ''}${c === lg.cards[1] ? ' picked' : ''}">` +
+          `<span class="c">${c}</span><i style="width:${(v / best) * 60}px"></i>${pct(v)}` +
+          (w != null ? `<small>選ぶ確率 ${pct(w)}</small>` : '') + `</div>`).join('') +
+        `→ AIは <b>${lg.cards[1]}</b> を選んだ` +
+        (mine && mine[2] != null && nc > 1 ? `<span style="color:#9aa6bd">（候補 ${nc} 枚から）</span>` : '');
   }
   function drawRibbon() {
     const last = data.last, lg = data.log[data.log.length - 1];
@@ -179,7 +183,7 @@ export default function (component) {
     $('round').textContent = Math.min(data.r + 1, data.n);
     const burned = burnedAt(data.log.length);
     drawScore(data.score, burned);
-    drawChips(data.log.length, !data.over);
+    drawChips(data.log.length, data.over ? null : data.prize);
     drawOpp(data.hands[1]);
     drawHistory();
     drawReview();
@@ -209,8 +213,7 @@ export default function (component) {
     // ① 前のラウンドの場を再現：得点カードと、両者の伏せ札
     $('round').textContent = lg.round;
     drawScore(before, burnedBefore);
-    drawChips(lg.round - 1, false);
-    $('prize-chips').querySelectorAll('.chip')[lg.prize - 1].className = 'chip now';
+    drawChips(lg.round - 1, lg.prize);
     drawOpp([...data.hands[1], lg.cards[1]]);
     drawPrize(lg.prize, before, burnedBefore, false);
     drawHistory();
@@ -254,7 +257,7 @@ export default function (component) {
       const p = $(lg.winner === 0 ? 'pts-you' : 'pts-ai');
       p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump');
     }
-    drawChips(data.log.length, false);
+    drawChips(data.log.length, null, lg.prize);
     drawOpp(data.hands[1], lg.cards[1]);
     await sleep(900); if (!alive) return;
     // ④ 次のラウンドへ（終わっていれば結果）
@@ -262,7 +265,7 @@ export default function (component) {
     mem.busy = false;
     if (data.over) { drawBanner(); drawHand(true); return; }
     $('round').textContent = data.r + 1;
-    drawChips(data.log.length, true);
+    drawChips(data.log.length, data.prize);
     $('prize').classList.remove('burn');
     drawPrize(data.prize, data.score, burnedNow, true);
     drawSlots('wait');

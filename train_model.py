@@ -17,7 +17,7 @@ import numpy as np
 
 from ai import MIN_HUMAN_DECISIONS, Brain, ai_vs_bots, train_brain
 from ml import (MODELS, OPP_DEFAULT, OPP_FEATURES, binary_metrics, cross_validate, decision_metrics, heuristic_opp,
-                normalize, opp_dataset, win_dataset)
+                WIN_RICH, normalize, opp_dataset, win_dataset)
 from registry import load_registry, save_version, slugify
 from store import LocalStore, SheetStore
 
@@ -44,8 +44,7 @@ def evaluate(games: list[dict], model: str, features: list[str], params: dict | 
         out["ルールの的中率"] = round(decision_metrics(odf, heuristic_opp(odf))["的中率（1位）"], 3)
     wdf = win_dataset(games)
     if len(wdf) >= 40 and wdf["won"].nunique() == 2 and wdf["game_id"].nunique() >= 5:
-        p = cross_validate(wdf, "won", ["lead_ratio", "max_gap", "sum_gap", "high_gap", "min_gap", "rounds_left",
-                                        "score_diff", "points_left"], ["LightGBM"], "group", None, "game_id")
+        p = cross_validate(wdf, "won", WIN_RICH, ["LightGBM"], "group", None, "game_id")
         out["勝率モデルAUC"] = round(binary_metrics(wdf["won"].to_numpy(), p["oof"]["LightGBM"])["AUC"], 3)
     return out
 
@@ -78,10 +77,10 @@ def main():
         print(f"※ 人間の手が {MIN_HUMAN_DECISIONS} 手に足りないので、相手の読みはルール（ベースライン）のままです。"
               "勝率モデルだけを学習します。")
 
-    brain: Brain = train_brain(games, opp_name=a.model, opp_features=features)
+    brain: Brain = train_brain(games, opp_name=a.model, opp_features=features, log=lambda m: print(f"  {m}"))
     print("成績を測っています…")
     metrics = evaluate(games, a.model, features, None)
-    metrics["ボット相手の勝率"] = round(ai_vs_bots(brain, n=100), 3)
+    metrics["ボット相手の勝率"] = round(ai_vs_bots(brain, n=200), 3)
     meta = {
         "name": a.name, "notes": a.notes,
         "opp": brain.opp_name, "win": brain.win_name,

@@ -57,7 +57,7 @@ def _play(card: int, think_ms=None):
     before = ss.state
     ss.state = resolve(before, card, p["card"])
     ss.last = {"log": ss.state["log"][-1], "read": read, "top": top, "ev": p["ev"], "card": card,
-               "ai_card": p["card"], "win": p["win"]}
+               "ai_card": p["card"], "win": p["win"], "cands": p.get("cands") or {}}
     ss.pending = None
 
 
@@ -69,7 +69,8 @@ def _intro(registry: dict):
     with st.container(border=True):
         c1, c2 = st.columns(2)
         c1.segmented_control("AIの強さ", list(LEVELS), default="ふつう", key="ai_level",
-                             help="AIの読みはどれも同じ。強いほど、期待勝率が一番高い札を迷わず選ぶ")
+                             help="AIの読みはどれも同じ。AIは期待勝率が最善に近い札だけを候補にしてくじで選ぶ。"
+                                  "強いほど候補の幅が狭い（" + "・".join(f"{k} {v * 100:.0f}ポイント以内" for k, v in LEVELS.items()) + "）")
         if versions:
             names = {v["slug"]: v["name"] + ("（現役）" if v["slug"] == registry.get("active") else "") for v in versions}
             slugs = list(names)
@@ -121,7 +122,10 @@ def _board_data(brain) -> dict:
         "last": None if not last else {
             "round": last["log"]["round"], "top": last["top"],
             "read": {str(c): round(p, 4) for c, p in last["read"].items()},
-            "ev": [[a, round(v, 4)] for a, v in sorted(last["ev"].items(), key=lambda x: -x[1])[:3]],
+            # 期待勝率の上位3枚＋候補になった札＋実際に出した札：[札, 期待勝率, 選ばれる確率（候補外は null）]
+            "ev": [[a, round(v, 4), round(last["cands"][a], 3) if a in last["cands"] else None]
+                   for i, (a, v) in enumerate(sorted(last["ev"].items(), key=lambda x: -x[1]))
+                   if i < 3 or a in last["cands"] or a == last["ai_card"]],
         },
     }
 

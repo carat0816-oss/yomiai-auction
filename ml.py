@@ -63,6 +63,8 @@ WIN_FEATURES = {
     "min_gap": ("最弱札の差", ""),
 }
 WIN_DEFAULT = list(WIN_FEATURES)
+# 新しい勝率モデル（Yomi 1.1 から）：まとめた数字に加えて、どの札が残っているかを1枚ずつ渡す
+WIN_RICH = WIN_DEFAULT + [f"{p}_{k}" for p in ("my", "opp", "left") for k in range(1, 11)]
 CATEGORICAL = {"boardgame", "style"}
 
 # 答えを見てから決まる列。入れると「カンニング」になる
