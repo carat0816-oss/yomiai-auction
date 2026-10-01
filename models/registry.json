@@ -1,6 +1,41 @@
 {
-  "active": "yomi-1.0",
+  "active": "yomi-1.1",
   "versions": [
+    {
+      "slug": "yomi-1.1",
+      "created_at": "2026-10-01 22:33",
+      "name": "Yomi 1.1",
+      "notes": "勝率モデルを作り直し：残っている札を1枚ずつ見る特徴量を追加、ボット対戦20000試合＋AI自己対戦4000試合で学習。札は最善に近い候補の中から選ぶ。読みは人間の手が150手に届くまでルールのまま",
+      "opp": "ルール（ベースライン）",
+      "win": "LightGBM・38特徴（ボット対戦 20000＋AI自己対戦 4000＋人間 5 試合）",
+      "model": "ルール",
+      "features": [
+        "card_rank",
+        "rank_gap",
+        "abs_rank_gap",
+        "card",
+        "is_max",
+        "is_min",
+        "sure_win",
+        "can_tie",
+        "prize",
+        "prize_share",
+        "round_no",
+        "score_diff",
+        "my_need",
+        "opp_need",
+        "max_gap",
+        "last_result",
+        "aggr_mean"
+      ],
+      "n_games": 5,
+      "n_moves": 50,
+      "data_source": "スプレッドシート",
+      "metrics": {
+        "勝率モデルAUC": 0.704,
+        "ボット相手の勝率": 0.86
+      }
+    },
     {
       "slug": "yomi-1.0",
       "created_at": "2026-10-01 19:43",
