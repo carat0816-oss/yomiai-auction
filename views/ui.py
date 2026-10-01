@@ -55,16 +55,56 @@ def rules_card():
     st.html(_RULES)
 
 
-_STEP = """
-<div style="display:flex;align-items:center;gap:10px;margin:22px 0 2px">
-  <span style="flex:none;width:26px;height:26px;border-radius:50%;background:#12213a;color:#fff;font-weight:800;
-    font-size:13px;display:flex;align-items:center;justify-content:center">{n}</span>
-  <span style="font-size:18px;font-weight:800;color:#14213a">{title}</span>
-  <span style="flex:1;height:1px;background:#d9e0ec"></span>
-</div>
+# ---- みんなのデータ用の部品 ------------------------------------------------------
+_DATA_CSS = """
+<style>
+.ya-q{display:flex;align-items:flex-start;gap:12px;margin:26px 0 8px}
+.ya-q .ya-qn{flex:none;min-width:34px;height:34px;padding:0 6px;border-radius:10px;background:#12213a;color:#fff;
+  font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;letter-spacing:.04em}
+.ya-q h3{font-size:21px;line-height:1.4;margin:2px 0 4px;padding:0;color:#14213a}
+.ya-q p{margin:0;font-size:15px;line-height:1.75;color:#3d4a63}
+.ya-ans{display:flex;gap:12px;align-items:flex-start;background:#eef5fd;border:1px solid #cde2fb;border-left:5px solid #2a78d6;
+  border-radius:12px;padding:12px 16px;margin:4px 0 10px}
+.ya-ans .ya-tag{flex:none;font-size:12px;font-weight:800;color:#fff;background:#2a78d6;border-radius:999px;padding:3px 10px;margin-top:2px}
+.ya-ans div{font-size:16px;line-height:1.75;color:#14213a}
+.ya-ans b{color:#1c5cab}
+.ya-ans.warn{background:#fdf6e9;border-color:#f5dfb3;border-left-color:#eda100}.ya-ans.warn .ya-tag{background:#b87b00}
+.ya-hl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:8px 0 6px}
+.ya-hl .ya-card{background:#fff;border:1px solid #d9e0ec;border-radius:16px;padding:14px 16px 13px;position:relative;overflow:hidden}
+.ya-hl .ya-card:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--c,#2a78d6)}
+.ya-hl .ya-k{font-size:13px;font-weight:800;color:#56627a}
+.ya-hl .ya-v{font-size:30px;font-weight:900;color:#14213a;line-height:1.25;margin:4px 0 2px}
+.ya-hl .ya-v small{font-size:15px;font-weight:700;color:#56627a;margin-left:4px}
+.ya-hl .ya-d{font-size:14px;line-height:1.65;color:#3d4a63}
+.ya-hl .ya-go{font-size:12px;color:#2a78d6;font-weight:700;margin-top:6px}
+.ya-sec{font-size:13px;font-weight:800;letter-spacing:.14em;color:#2a78d6;margin:18px 0 0}
+</style>
 """
 
 
-def step(n: int, title: str):
-    """手順の見出し（番号つき）。"""
-    st.html(_STEP.format(n=n, title=title))
+def data_css():
+    st.html(_DATA_CSS)
+
+
+def question(n: str, title: str, lead: str = ""):
+    """分析の1つ分の見出し：番号と「問い」、何を見ているかの一文。"""
+    st.html(f'<div class="ya-q"><span class="ya-qn">{n}</span><div><h3>{title}</h3>'
+            + (f"<p>{lead}</p>" if lead else "") + "</div></div>")
+
+
+def answer(text: str, warn: bool = False, tag: str = "わかったこと"):
+    """データから計算した答え（太字は <b> で）。データが足りないときは warn=True で黄色にする。"""
+    st.html(f'<div class="ya-ans{" warn" if warn else ""}"><span class="ya-tag">{tag}</span><div>{text}</div></div>')
+
+
+def highlights(cards: list[dict]):
+    """ページ上部のまとめカード。cards：{"k": 見出し, "v": 大きい数字, "u": 単位, "d": 説明, "go": 詳しく見る場所, "c": 色}"""
+    html = "".join(
+        f'<div class="ya-card" style="--c:{c.get("c", "#2a78d6")}"><div class="ya-k">{c["k"]}</div>'
+        f'<div class="ya-v">{c["v"]}<small>{c.get("u", "")}</small></div><div class="ya-d">{c["d"]}</div>'
+        + (f'<div class="ya-go">→ {c["go"]}</div>' if c.get("go") else "") + "</div>" for c in cards)
+    st.html(f'<div class="ya-hl">{html}</div>')
+
+
+def section(label: str):
+    st.html(f'<div class="ya-sec">{label}</div>')

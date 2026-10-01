@@ -176,11 +176,16 @@ def _share(store, load_shared):
         st.markdown("**📤 この対戦を「みんなのデータ」に送る**")
         if "player_name" not in ss:
             ss.player_name = ss.get("last_player", "")
-        player = st.text_input("プレイヤー名（ニックネームにしてください）", max_chars=16, key="player_name",
+        player = st.text_input("プレイヤー名（必須・ニックネームにしてください）", max_chars=16, key="player_name",
                                placeholder="例：よみあい名人")
-        consent = st.checkbox("データ提供に同意する（名前・しつもんの答え・出した札と考えた時間が保存され、"
+        consent = st.checkbox("データ提供に同意する（名前・出した札と考えた時間が保存され、"
                               "このアプリを使う全員が見られます。AIの学習にも使われます）", key="consent")
+        # 名前の入力欄は、欄の外をクリックした時点で確定する。ボタンを名前で無効にすると
+        # 「入力してすぐ送るを押す」とクリックが空振りするので、押したときに確かめる
         if st.button("送る", disabled=not consent, key="share"):
+            if not player.strip():
+                st.warning("プレイヤー名を入れてください。「みんなのデータ」で自分の記録を見つけるときに使います。", icon="✏️")
+                return
             if len(saved) >= MAX_PER_SESSION:
                 st.warning("この接続で送れる回数の上限に達しました。ページを読み込み直してください。")
                 return

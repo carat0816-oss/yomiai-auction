@@ -3,11 +3,13 @@ import streamlit as st
 from ai import MIN_HUMAN_DECISIONS, Brain
 from registry import load_brain, load_registry, model_path
 from store import get_store
-from views.lab import show_lab
 from views.play import show_play
 from views.shared import show_shared
 
-st.set_page_config(page_title="読み合いオークション", page_icon="🃏", layout="centered")
+DATA_PAGE = "📊 みんなのデータ"
+# データの画面はグラフを横に並べたいので広く、対戦の画面は盤面に合わせて中央寄せにする
+st.set_page_config(page_title="読み合いオークション", page_icon="🃏",
+                   layout="wide" if st.session_state.get("page") == DATA_PAGE else "centered")
 
 MAX_SHARED = 1000   # 読み込む「みんなのデータ」の最大試合数（新しい順）
 
@@ -36,7 +38,7 @@ active = next((v for v in registry["versions"] if v["slug"] == registry.get("act
 
 with st.sidebar:
     st.header("🃏 読み合いオークション")
-    page = st.radio("画面", ["🎮 対戦", "📊 みんなのデータ", "🤖 モデル工房"], key="page", label_visibility="collapsed")
+    page = st.radio("画面", ["🎮 対戦", DATA_PAGE], key="page", label_visibility="collapsed")
     st.caption("※ 対戦中に画面を切り替えても、対戦は続きから再開できます")
     try:
         games = load_shared()
@@ -64,7 +66,5 @@ with st.sidebar:
 
 if page == "🎮 対戦":
     show_play(get_brain, registry, store, load_shared)
-elif page == "📊 みんなのデータ":
-    show_shared(games, store)
 else:
-    show_lab(games, registry)
+    show_shared(games, store)

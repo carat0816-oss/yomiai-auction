@@ -43,8 +43,15 @@ print("PASS: 対戦を最後まで進めてリザルト")
 
 # 送る：同意するまで送れない → 送るとファイルに1試合・10ラウンド
 assert at.button(key="share").disabled
-at.text_input(key="player_name").input("テスト花子")
+# 名前が空欄だと送れない
 at.checkbox(key="consent").check().run()
+at.text_input(key="player_name").input("   ")
+at.button(key="share").click().run()
+assert not at.exception, at.exception
+assert any("プレイヤー名を入れて" in w.value for w in at.warning)
+assert not (data_dir / "yomiai_games.jsonl").exists()
+print("PASS: 名前が空欄なら送れない")
+at.text_input(key="player_name").input("テスト花子")
 at.button(key="share").click().run()
 assert not at.exception, at.exception
 games = [json.loads(x) for x in (data_dir / "yomiai_games.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -66,16 +73,13 @@ assert at.metric[0].value == "1 試合"
 at.segmented_control(key="shared_src").set_value("ダミー（練習用）").run()
 assert not at.exception, at.exception
 assert at.metric[0].value == "90 試合"
-print("PASS: みんなのデータ（本物・ダミー）")
+at.multiselect(key="shared_players").select(at.multiselect(key="shared_players").options[0]).run()
+assert not at.exception, at.exception
+at.multiselect(key="shared_players").set_value([]).run()
+at.segmented_control(key="shared_src").set_value("みんなのデータ").run()
+print("PASS: みんなのデータ（本物・ダミー・絞り込み）")
 
-# モデル工房：ダミーで学習・評価
-at.sidebar.radio(key="page").set_value("🤖 モデル工房").run()
-at.segmented_control(key="lab_src").set_value("ダミー（練習用）").run()
-assert not at.exception, at.exception
-button(at, "学習して評価する").click().run()
-assert not at.exception, at.exception
-assert len(at.dataframe) >= 1
-at.radio(key="lab_task").set_value("win").run()
-button(at, "学習して評価する").click().run()
-assert not at.exception, at.exception
-print("PASS: モデル工房（相手の手・勝率）")
+# プレイヤーのカルテ：送った名前が最初に選ばれている
+assert at.selectbox(key="shared_who").value == "テスト花子"
+assert len(at.tabs) == 5
+print("PASS: プレイヤーのカルテ")
