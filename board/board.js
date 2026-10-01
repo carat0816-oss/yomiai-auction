@@ -40,7 +40,11 @@ export default function (component) {
     const rest = Array.from({ length: 10 }, (_, i) => i + 1).filter(v => !taken.has(v));
     $('tray-rest').innerHTML = rest.map(v => chip(v, v === now ? 'now' : '')).join('');
     const burned = side(-1);
-    $('tray-burn').innerHTML = burned.length ? '相打ちで流れた：' + burned.map(lg => chip(lg.prize, '')).join('') : '';
+    $('tray-burn').innerHTML = burned.map(lg => chip(lg.prize, 'gone', lg.round)).join('');
+    $('tw-burn').hidden = !burned.length;
+    // 枠の幅は、入っている枚数に合わせる（1行に収めるため）
+    [['tw-you', side(0).length], ['tw-rest', rest.length], ['tw-burn', burned.length], ['tw-ai', side(1).length]]
+      .forEach(([id, n]) => { $(id).style.flexGrow = Math.max(n, 1.4); });
     $('sum-you').textContent = side(0).reduce((a, lg) => a + lg.prize, 0);
     $('sum-ai').textContent = side(1).reduce((a, lg) => a + lg.prize, 0);
     $('sum-rest').textContent = rest.reduce((a, v) => a + v, 0);

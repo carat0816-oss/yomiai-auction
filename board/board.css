@@ -69,36 +69,35 @@
 .tug-legend .line{display:inline-block;width:3px;height:10px;background:#fff;vertical-align:-1px;margin:0 3px;box-shadow:0 0 4px #fff}
 .tug-legend b{color:var(--ink)}
 
-/* ---- 得点カード（3つのトレイ）---- */
-.trays{display:grid;grid-template-columns:1fr 1.5fr 1fr;grid-template-areas:"you rest ai";gap:8px;margin-top:10px}
-.tray{border-radius:14px;padding:8px 8px 10px;background:#0b152680;box-shadow:inset 0 0 0 1.5px var(--tc,#ffffff1f);min-width:0}
-.tray.you{grid-area:you;--tc:#3987e570;background:linear-gradient(180deg,#3987e51c,#0b152680)}
-.tray.ai{grid-area:ai;--tc:#eb683470;background:linear-gradient(180deg,#eb68341c,#0b152680)}
-.tray.rest{grid-area:rest;--tc:#f2c14e55}
-.tray-head{font-size:12.5px;font-weight:800;color:#dfe5ef;margin-bottom:7px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tray-head b{font-size:16px;margin:0 1px 0 4px}
+/* ---- 得点カード（1行。枠の幅は入っている枚数に合わせて伸び縮みする）---- */
+.trays{display:flex;gap:6px;margin-top:10px;align-items:stretch}
+.tray{flex:1 1 0;min-width:58px;border-radius:12px;padding:4px 6px 4px;background:#0b152680;box-shadow:inset 0 0 0 1.5px var(--tc,#ffffff1f)}
+.tray.you{--tc:#3987e570;background:linear-gradient(180deg,#3987e51c,#0b152680)}
+.tray.ai{--tc:#eb683470;background:linear-gradient(180deg,#eb68341c,#0b152680)}
+.tray.rest{--tc:#f2c14e55}
+.tray.burn{--tc:#ffffff1a;min-width:44px}
+.tray-head{font-size:11px;font-weight:800;color:#c3cbda;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+.tray-head b{font-size:13px;margin-left:2px}
 .tray.you .tray-head b{color:#9cc6f7}.tray.ai .tray-head b{color:#f8b08f}.tray.rest .tray-head b{color:#ffe08a}
-.tray-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 4px;min-height:44px;align-content:flex-start}
-.tray-chips:empty::before{content:"まだなし";font-size:11.5px;color:#7d8aa3;align-self:center;padding-top:12px}
-.chip{position:relative;width:34px;height:34px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:15px;background:radial-gradient(circle at 35% 30%,#fff8de,#f1dfa8);color:#6b4e00;
+.tray-chips{display:flex;flex-wrap:nowrap;justify-content:center;gap:3px;padding-bottom:12px;min-height:44px}
+.tray-chips:empty::before{content:"なし";font-size:11px;color:#7d8aa3;align-self:center;padding-top:10px}
+.chip{position:relative;width:30px;height:30px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:14px;background:radial-gradient(circle at 35% 30%,#fff8de,#f1dfa8);color:#6b4e00;
   box-shadow:inset 0 0 0 2px #d9b65a,inset 0 -3px 0 #0002;transition:all .5s}
-.chip.has-r{margin-bottom:10px}
 .chip.you{background:var(--you);color:#fff;box-shadow:inset 0 -3px 0 #0003}
 .chip.ai{background:var(--ai);color:#fff;box-shadow:inset 0 -3px 0 #0003}
-.chip.now{background:linear-gradient(160deg,#ffe08a,var(--gold));color:#3b2a00;box-shadow:0 0 0 2px #fff,0 0 14px #f2c14e99;
-  animation:glow 1.6s ease-in-out infinite;margin-bottom:10px}
-.chip.now::after{content:"いま";position:absolute;bottom:-14px;left:-6px;right:-6px;text-align:center;font-size:9.5px;font-weight:800;color:#ffe08a}
-.chip small{position:absolute;bottom:-13px;left:-4px;right:-4px;text-align:center;font-size:9.5px;font-weight:700;color:var(--muted)}
+.chip.gone{background:#3a4660;color:#9aa6bd;box-shadow:none;text-decoration:line-through}
+.chip.now{background:linear-gradient(160deg,#ffe08a,var(--gold));color:#3b2a00;box-shadow:0 0 0 2px #fff,0 0 12px #f2c14e99;
+  animation:glow 1.6s ease-in-out infinite}
+.chip.now::after{content:"いま";position:absolute;bottom:-13px;left:-6px;right:-6px;text-align:center;font-size:9px;font-weight:800;color:#ffe08a}
+.chip small{position:absolute;bottom:-12px;left:-4px;right:-4px;text-align:center;font-size:9px;font-weight:700;color:var(--muted)}
 .chip.got{animation:got .6s cubic-bezier(.2,1.4,.4,1)}
 @keyframes got{0%{transform:scale(1.6);opacity:0}100%{transform:none;opacity:1}}
-.tray-burn{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:#9aa6bd}
-.tray-burn:empty{display:none}
-.tray-burn .chip{width:24px;height:24px;font-size:11px;background:#3a4660;color:#9aa6bd;box-shadow:none;text-decoration:line-through}
-@keyframes glow{50%{box-shadow:0 0 0 2px #fff,0 0 22px #f2c14ecc}}
+@keyframes glow{50%{box-shadow:0 0 0 2px #fff,0 0 20px #f2c14ecc}}
 @container (max-width:560px){
-  .trays{grid-template-columns:1fr 1fr;grid-template-areas:"rest rest" "you ai"}
-  .chip{width:30px;height:30px;font-size:13px}
+  .trays{gap:3px}.tray{min-width:36px;padding:3px 2px 3px}.tray.burn{min-width:28px}
+  .chip{width:22px;height:22px;font-size:11px}.tray-chips{gap:2px}
+  .tray-head{font-size:9.5px}.tray-head b{font-size:11px}
 }
 
 /* ---- 場 ---- */

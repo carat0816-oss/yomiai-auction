@@ -15,12 +15,12 @@
     <div class="tug-legend"><span id="need-you"></span><span id="rest-label"></span><span id="need-ai"></span></div>
   </section>
 
-  <!-- 得点カード：上の点数バーと同じ並び（左＝あなた、真ん中＝まだ出ていない、右＝AI） -->
+  <!-- 得点カード：1行で、上の点数バーと同じ並び（左＝あなたが取った、真ん中＝まだ出ていない、右＝AIが取った） -->
   <section class="rail trays">
-    <div class="tray you"><div class="tray-head">あなたが取った <b id="sum-you">0</b>点</div><div class="tray-chips" id="tray-you"></div></div>
-    <div class="tray rest"><div class="tray-head">まだ出ていない得点カード <b id="sum-rest">55</b>点</div>
-      <div class="tray-chips" id="tray-rest"></div><div class="tray-burn" id="tray-burn"></div></div>
-    <div class="tray ai"><div class="tray-head">AIが取った <b id="sum-ai">0</b>点</div><div class="tray-chips" id="tray-ai"></div></div>
+    <div class="tray you" id="tw-you"><div class="tray-head">あなた <b id="sum-you">0</b></div><div class="tray-chips" id="tray-you"></div></div>
+    <div class="tray rest" id="tw-rest"><div class="tray-head">まだ出ていない <b id="sum-rest">55</b></div><div class="tray-chips" id="tray-rest"></div></div>
+    <div class="tray burn" id="tw-burn" hidden><div class="tray-head">流れた</div><div class="tray-chips" id="tray-burn"></div></div>
+    <div class="tray ai" id="tw-ai"><div class="tray-head">AI <b id="sum-ai">0</b></div><div class="tray-chips" id="tray-ai"></div></div>
   </section>
 
   <!-- AIのエリア（場の向こう側） -->
