@@ -12,7 +12,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v2 as components
 
-from game import N_ROUNDS, is_over, new_game, outcome, resolve
+from game import N_ROUNDS, is_over, new_game, resolve
 from store import LEVELS, clean_game
 from views.ui import page_header, rules_card
 
@@ -112,11 +112,10 @@ def _board_data(brain) -> dict:
     s = ss.state
     over = is_over(s)
     last = ss.get("last")
-    win_p = outcome(s, 0) if over else float(1 - brain.value([s], 1)[0])
     return {
         "r": s["r"], "n": N_ROUNDS, "over": over,
         "prize": None if over else s["prizes"][s["r"]],
-        "score": s["score"], "hands": s["hands"], "win_p": round(win_p, 4),
+        "score": s["score"], "hands": s["hands"],
         "log": [{"round": lg["round"], "prize": lg["prize"], "cards": lg["cards"], "winner": lg["winner"],
                  "score": lg["score"]} for lg in s["log"]],
         "last": None if not last else {

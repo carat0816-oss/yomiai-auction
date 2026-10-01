@@ -1,4 +1,6 @@
 <div class="table" tabindex="0" aria-label="読み合いオークションの盤面">
+<div class="layout">
+<div class="main">
   <!-- 一番上：スコアボード（点数・勝ち確定ライン） -->
   <section class="scoreboard">
     <header class="top">
@@ -11,7 +13,6 @@
       <div class="half"></div>
     </div>
     <div class="tug-legend"><span id="need-you"></span><span id="rest-label"></span><span id="need-ai"></span></div>
-    <div class="meter"><span>AIの見立て（勝率）</span><div class="meter-bar"><i id="meter-you"></i></div><span id="meter-text"></span></div>
   </section>
 
   <section class="rail">
@@ -50,6 +51,10 @@
     <div class="hand" id="hand"></div>
   </section>
 
+</div>
+
+<!-- 右側（横幅が広いとき）／下（スマホなど）：AIの読みと、これまでの対戦 -->
+<aside class="side">
   <section class="review" id="review" hidden>
     <div class="review-head" id="review-head"></div>
     <div class="review-body">
@@ -61,9 +66,15 @@
     </div>
     <div class="stamp" id="stamp"></div>
   </section>
+  <section class="side-empty">
+    <div class="read-title">AIの読み</div>
+    <p>札を出すと、AIが「あなたが出す札」をどう予想していたかと、なぜその札を選んだかがここに出ます。</p>
+  </section>
 
   <section class="history">
     <div class="rail-title">これまでの対戦 <small>上＝得点 ／ <span class="y">青＝あなた</span> <span class="a">オレンジ＝AI</span>（下線＝勝った方）</small></div>
     <div class="hist" id="hist"></div>
   </section>
+</aside>
+</div>
 </div>

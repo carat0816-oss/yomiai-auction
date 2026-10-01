@@ -7,9 +7,9 @@ from views.play import show_play
 from views.shared import show_shared
 
 DATA_PAGE = "📊 みんなのデータ"
-# データの画面はグラフを横に並べたいので広く、対戦の画面は盤面に合わせて中央寄せにする
-st.set_page_config(page_title="読み合いオークション", page_icon="🃏",
-                   layout="wide" if st.session_state.get("page") == DATA_PAGE else "centered")
+# データの画面と対戦中は広く（グラフを横に並べる／盤面の右にAIの読みを出す）、対戦前の画面は中央寄せにする
+_wide = st.session_state.get("page") == DATA_PAGE or "state" in st.session_state
+st.set_page_config(page_title="読み合いオークション", page_icon="🃏", layout="wide" if _wide else "centered")
 
 MAX_SHARED = 1000   # 読み込む「みんなのデータ」の最大試合数（新しい順）
 

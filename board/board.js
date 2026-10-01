@@ -102,11 +102,6 @@ export default function (component) {
     }
     $('carry').textContent = note;
   }
-  function drawMeter() {
-    root.querySelector('.meter').hidden = !!data.over;
-    $('meter-you').style.width = pct(data.win_p);
-    $('meter-text').textContent = data.over ? '' : `あなた ${pct(data.win_p)} ／ AI ${pct(1 - data.win_p)}`;
-  }
   function drawHand(locked) {
     const hand = data.hands[0];
     const n = hand.length;
@@ -187,7 +182,6 @@ export default function (component) {
     drawChips(data.log.length, !data.over);
     drawOpp(data.hands[1]);
     drawHistory();
-    drawMeter();
     drawReview();
     drawBanner();
     drawRibbon();
@@ -262,7 +256,6 @@ export default function (component) {
     }
     drawChips(data.log.length, false);
     drawOpp(data.hands[1], lg.cards[1]);
-    drawMeter();
     await sleep(900); if (!alive) return;
     // ④ 次のラウンドへ（終わっていれば結果）
     mem.seen = lg.round;
