@@ -23,6 +23,7 @@ GAME_COLS = ["game_id", "received_at", "player", "boardgame", "style", "ai_level
              "result", "burned", "read_top1", "read_prob", "ai_model", "version"]
 ROUND_COLS = ["game_id", "player", "round", "prize", "human_card", "ai_card", "winner",
               "human_total", "ai_total", "burned_total", "think_ms", "ai_read", "read_prob", "ai_win"]
+# プレイ前の質問（いまは画面に出していない。スプレッドシートの列は、前の記録とそろえるため残す）
 PROFILE = {
     "boardgame": ("ボードゲームやカードゲームはよくやる？", ["よくやる", "ときどき", "あまりやらない", "答えない"]),
     "style": ("自分は慎重派？大胆派？", ["慎重派", "どちらでもない", "大胆派", "答えない"]),

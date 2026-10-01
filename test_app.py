@@ -27,7 +27,6 @@ if shutil.which("node"):
 
 at = AppTest.from_file(APP, default_timeout=T).run()
 assert not at.exception, at.exception
-at.selectbox(key="profile_boardgame").set_value("よくやる").run()
 button(at, "対戦スタート →").click().run()
 assert not at.exception, at.exception
 # 10ラウンド：毎回、残っている一番小さい札を出す（盤面のクリックと同じ処理を通す）
@@ -51,7 +50,7 @@ assert not at.exception, at.exception
 games = [json.loads(x) for x in (data_dir / "yomiai_games.jsonl").read_text(encoding="utf-8").splitlines()]
 rounds = (data_dir / "yomiai_rounds.jsonl").read_text(encoding="utf-8").splitlines()
 assert len(games) == 1 and len(rounds) == 10
-assert games[0]["player"] == "テスト花子" and games[0]["boardgame"] == "よくやる"
+assert games[0]["player"] == "テスト花子" and games[0]["boardgame"] == "答えない"
 assert not any(b.key == "share" for b in at.button)          # 同じ試合は二度送れない
 print("PASS: 同意して送る・二重送信の防止")
 

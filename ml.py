@@ -48,8 +48,6 @@ OPP_FEATURES = {
     "last_result": ("前のラウンドの結果", "勝ち 1／相打ち 0／負け −1"),
     "aggr_mean": ("その人のここまでの強気さ", "これまで出した札の順位 − 得点カードの順位 の平均"),
     "last_think_ms": ("前のラウンドで考えた時間（ms）", ""),
-    "boardgame": ("ボードゲーム経験（自己申告）", "カテゴリ"),
-    "style": ("慎重派／大胆派（自己申告）", "カテゴリ"),
 }
 OPP_DEFAULT = ["card_rank", "rank_gap", "abs_rank_gap", "card", "is_max", "is_min", "sure_win", "can_tie",
                "prize", "prize_share", "round_no", "score_diff", "my_need", "opp_need", "max_gap", "last_result",

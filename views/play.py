@@ -13,7 +13,7 @@ import streamlit as st
 import streamlit.components.v2 as components
 
 from game import N_ROUNDS, is_over, new_game, outcome, resolve
-from store import LEVELS, PROFILE, clean_game
+from store import LEVELS, clean_game
 from views.ui import page_header, rules_card
 
 HUMAN, AI = "#2a78d6", "#eb6834"
@@ -33,7 +33,7 @@ def _start():
     ss.rng = random.Random()
     ss.state = new_game(ss.rng)
     ss.rec = {"prizes": ss.state["prizes"], "rounds": [], "ai_level": ss.get("ai_level") or "ふつう",
-              "profile": {k: ss.get(f"profile_{k}") for k in PROFILE},
+              "profile": {},   # プレイ前の質問はなくした（スプレッドシートには「答えない」が入る）
               "version": ss.get("ai_version")}   # 試合の途中で版が変わらないよう、始めた時点の版を覚える
     ss.pending = None
     ss.last = None
@@ -67,12 +67,9 @@ def _intro(registry: dict):
     rules_card()
     versions = registry["versions"]
     with st.container(border=True):
-        st.markdown("**プレイ前のしつもん**　<small>任意。予測モデルの材料になります</small>", unsafe_allow_html=True)
-        cols = st.columns(len(PROFILE))
-        for col, (k, (label, choices)) in zip(cols, PROFILE.items()):
-            col.selectbox(label, choices, index=len(choices) - 1, key=f"profile_{k}")
         c1, c2 = st.columns(2)
-        c1.segmented_control("AIの強さ", list(LEVELS), default="ふつう", key="ai_level")
+        c1.segmented_control("AIの強さ", list(LEVELS), default="ふつう", key="ai_level",
+                             help="AIの読みはどれも同じ。強いほど、期待勝率が一番高い札を迷わず選ぶ")
         if versions:
             names = {v["slug"]: v["name"] + ("（現役）" if v["slug"] == registry.get("active") else "") for v in versions}
             slugs = list(names)
